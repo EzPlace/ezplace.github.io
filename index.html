@@ -2,20 +2,2251 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0;url=https://ezplace-server.onrender.com">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EzPlace - Free Collaborative Pixel Art</title>
-<meta name="description" content="EzPlace is a free r/place clone with 0 cooldown, 47 colors, multiple canvas sizes, and real-time multiplayer. No signup required.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<title>EzPlace</title>
 <style>
-  body { background: #0f0f13; color: #e8e8f0; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-  a { color: #7c5cfc; font-size: 18px; }
+  /* === MODERN DARK THEME === */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  :root {
+    --bg-primary: #0f0f13;
+    --bg-secondary: #16161d;
+    --bg-tertiary: #1e1e28;
+    --bg-elevated: #252532;
+    --bg-hover: #2a2a3a;
+    --border: #2e2e3e;
+    --border-light: #3a3a4e;
+    --text-primary: #e8e8f0;
+    --text-secondary: #9999b0;
+    --text-muted: #666680;
+    --accent: #7c5cfc;
+    --accent-hover: #9070ff;
+    --accent-dim: rgba(124,92,252,0.15);
+    --green: #43b581;
+    --red: #f04747;
+    --yellow: #faa61a;
+    --gold: #f0b232;
+    --surface: #1a1a24;
+    --input-bg: #12121a;
+    --scrollbar: #2a2a3a;
+    --scrollbar-hover: #3a3a4e;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; display: flex; height: 100vh; height: 100svh; height: 100dvh; overflow: hidden; }
+
+  /* Utility classes (replacing win-raised/win-sunken) */
+  .win-raised, .win-sunken { border: none; }
+
+  /* Button */
+  .win-btn { background: var(--accent); border: none; padding: 6px 16px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; color: #fff; border-radius: var(--radius-sm); transition: all 0.15s ease; }
+  .win-btn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,92,252,0.3); }
+  .win-btn:active { transform: translateY(0); box-shadow: none; }
+  .win-btn:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Input */
+  .win-input { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border); padding: 7px 10px; font-family: inherit; font-size: 12px; border-radius: var(--radius-sm); transition: border-color 0.15s; }
+  .win-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-dim); }
+  .win-input::placeholder { color: var(--text-muted); }
+
+  /* Title bar */
+  .win-titlebar { background: var(--bg-tertiary); color: var(--text-primary); padding: 6px 12px; font-weight: 600; font-size: 12px; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+
+  /* Left: Canvas area */
+  #canvas-wrap { flex: 1; display: flex; flex-direction: column; position: relative; background: var(--bg-secondary); }
+  #header { padding: 8px 14px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-tertiary); color: var(--text-primary); flex-shrink: 0; border-bottom: 1px solid var(--border); }
+  #header h1 { font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  #header-right { display: flex; align-items: center; gap: 12px; }
+  #lobby-name-display { font-size: 12px; color: var(--text-secondary); }
+  #lobby-name-display b { color: var(--yellow); }
+  #btn-leave-lobby { font-size: 13px; font-weight: 700; padding: 8px 18px; background: var(--red); color: #fff; border: 2px solid #ff6b6b; box-shadow: 0 2px 8px rgba(240,71,71,0.4); }
+  #btn-leave-lobby:hover { background: #ff2a2a; box-shadow: 0 4px 16px rgba(240,71,71,0.6); transform: translateY(-1px); }
+  #online { font-size: 12px; color: var(--text-secondary); }
+  #online span { color: var(--green); font-weight: 600; }
+
+  #info-row { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 5px 10px; flex-shrink: 0; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+  #hover-info { font-size: 11px; color: var(--text-secondary); min-width: 140px; text-align: center; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  #zoom-level { font-size: 11px; color: var(--text-secondary); min-width: 40px; text-align: center; }
+  #cooldown-warn { font-size: 11px; color: var(--red); min-height: 18px; text-align: center; flex-shrink: 0; background: var(--bg-secondary); padding: 2px; font-weight: 500; }
+  #cooldown-bar { height: 4px; background: var(--bg-elevated); border: none; border-radius: 2px; max-width: 520px; width: 100%; flex-shrink: 0; margin: 0 auto; overflow: hidden; }
+  #cooldown-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--red), var(--yellow), var(--green)); transition: width 0.05s linear; border-radius: 2px; }
+
+  #viewport-wrap { flex: 1; position: relative; overflow: hidden; width: 100%; background: var(--bg-primary); }
+  #viewport { width: 100%; height: 100%; cursor: grab; display: block; touch-action: none; }
+
+  #zoom-buttons { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 3; }
+  #zoom-buttons button { width: 34px; height: 34px; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer; transition: all 0.15s; }
+  #zoom-buttons button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  #palette-row { display: flex; gap: 4px; padding: 8px 10px; flex-wrap: wrap; justify-content: center; max-width: 680px; flex-shrink: 0; background: var(--bg-secondary); border-top: 1px solid var(--border); }
+  #palette-scroll-hint { display: none; }
+  .color-btn { width: 26px; height: 26px; border: 2px solid transparent; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .color-btn:hover { transform: scale(1.2); border-color: rgba(255,255,255,0.5); box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+  .color-btn.selected { border-color: #fff; transform: scale(1.15); box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(124,92,252,0.4); }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .msg { animation: fadeIn 0.2s ease; }
+  .lobby-card { animation: slideIn 0.2s ease; transition: all 0.2s ease; }
+  .friend-item { animation: fadeIn 0.15s ease; }
+  .lb-row { animation: fadeIn 0.15s ease; }
+  .sidebar-tab { transition: all 0.15s ease; }
+  #sidebar { transition: transform 0.25s ease; }
+  #cooldown-warn { transition: opacity 0.2s; }
+  .lobby-expiry { font-size: 10px; color: var(--yellow); font-style: italic; opacity: 0.8; }
+
+  #tab-warning { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 100; align-items: center; justify-content: center; font-size: 18px; color: var(--text-primary); }
+  #tab-warning.show { display: flex; }
+
+  /* Lobby browser overlay */
+  #lobby-screen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-secondary); z-index: 10; display: flex; flex-direction: column; align-items: center; padding: 24px; overflow-y: auto; }
+  #lobby-screen h2 { color: var(--accent); margin-bottom: 12px; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  #lobby-screen .section-title { font-size: 11px; color: var(--text-muted); margin: 16px 0 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 480px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .lobby-list { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 4px; }
+  .lobby-card { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .lobby-card:hover { background: var(--bg-hover); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim); }
+  .lobby-card:hover .lobby-meta { color: var(--text-secondary); }
+  .lobby-card .lobby-info { flex: 1; }
+  .lobby-card .lobby-title { font-size: 13px; font-weight: 600; }
+  .lobby-card .lobby-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .lobby-card .lobby-online { color: var(--green); font-size: 12px; font-weight: 600; }
+  .lobby-card:hover .lobby-online { color: var(--green); }
+  .lobby-card .lobby-actions { display: flex; gap: 4px; }
+  .lobby-card .lobby-actions button { font-size: 10px; padding: 3px 8px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; }
+  .lobby-card .lobby-actions button:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .lobby-card .lobby-actions button.del { color: var(--red); }
+  .lobby-card .lobby-actions button.del:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  #join-code-row { display: flex; gap: 6px; width: 100%; max-width: 480px; margin-top: 6px; }
+  #join-code-row input { flex: 1; text-transform: uppercase; letter-spacing: 2px; }
+
+  #create-lobby-row { display: flex; gap: 6px; width: 100%; max-width: 480px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+  #create-lobby-row input { flex: 1; min-width: 100px; }
+  #create-lobby-row label { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .lobby-error { color: var(--red); font-size: 11px; margin-top: 6px; width: 100%; max-width: 480px; min-height: 14px; font-weight: 500; }
+
+  /* Lobby manage modal */
+  #manage-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; align-items: center; justify-content: center; }
+  #manage-modal.show { display: flex; }
+  #manage-box { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 0; width: 360px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  #manage-box h3 { background: var(--bg-elevated); color: var(--text-primary); padding: 12px 16px; font-size: 14px; font-weight: 600; margin: 0; border-bottom: 1px solid var(--border); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  #manage-box label { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; margin: 8px 12px; cursor: pointer; }
+  #manage-box input[type=text] { margin: 6px 12px; width: calc(100% - 24px); }
+  #manage-box .code-display { background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 14px; color: var(--accent); font-family: 'JetBrains Mono', 'Fira Code', monospace; letter-spacing: 3px; margin: 8px 12px; text-align: center; font-weight: 600; }
+  #manage-box .wl-list { margin: 6px 12px; }
+  #manage-box .wl-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+  #manage-box .wl-item button { background: none; border: none; color: var(--red); cursor: pointer; font-size: 11px; font-weight: 500; }
+  #manage-box .wl-item button:hover { text-decoration: underline; }
+  #manage-box .btn-row { display: flex; gap: 6px; margin: 12px; }
+  #manage-box .btn-row button { flex: 1; }
+  #manage-save { font-weight: 600; }
+
+  /* Sidebar tabs */
+  #sidebar-tabs { display: flex; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); flex-shrink: 0; padding: 0 4px; }
+  .sidebar-tab { flex: 1; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 500; cursor: pointer; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--text-muted); transition: all 0.15s; }
+  .sidebar-tab.active { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); background: transparent; }
+  .sidebar-tab:hover { color: var(--text-primary); }
+  .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .tab-panel.active { display: flex; }
+
+  /* Friends panel */
+  #friends-panel { padding: 6px; overflow-y: auto; flex: 1; }
+  .friend-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; font-size: 12px; border-bottom: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .friend-item:hover { background: var(--bg-hover); }
+  .friend-item .f-status { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+  .friend-item .f-status.online { background: var(--green); box-shadow: 0 0 6px rgba(67,181,129,0.4); }
+  .friend-item .f-status.offline { background: var(--text-muted); }
+  .friend-item .f-name { flex: 1; }
+  .friend-item button { font-size: 10px; padding: 3px 8px; margin-left: 4px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; }
+  .friend-item button:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .friend-section { font-size: 10px; font-weight: 600; color: var(--text-muted); padding: 6px 4px 4px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+  #friend-add-row { display: flex; gap: 4px; padding: 6px; }
+  #friend-add-row input { flex: 1; }
+
+  /* Messages panel */
+  #msgs-panel { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+  #msg-list { flex: 1; overflow-y: auto; padding: 6px; }
+  .msg-thread { padding: 8px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 12px; border-radius: var(--radius-sm); }
+  .msg-thread:hover { background: var(--bg-hover); }
+  .msg-thread.active { background: var(--accent); color: #fff; }
+  #msg-view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  #msg-view-header { padding: 8px 12px; background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  #msg-view-msgs { flex: 1; overflow-y: auto; padding: 8px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 4px; }
+  .dm-msg { font-size: 12px; margin-bottom: 4px; }
+  .dm-msg b { color: var(--accent); }
+  .dm-msg .dm-time { color: var(--text-muted); font-size: 10px; margin-right: 4px; }
+  #msg-send-row { display: flex; gap: 4px; padding: 6px; }
+  #msg-send-row input { flex: 1; }
+  #group-create-row { display: flex; gap: 4px; padding: 6px; flex-wrap: wrap; }
+  #group-create-row input { flex: 1; min-width: 60px; }
+  .notif-badge { background: var(--red); color: #fff; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; font-weight: 600; }
+
+  /* Leaderboard */
+  .lb-row { display: flex; align-items: center; padding: 6px 8px; font-size: 12px; border-bottom: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .lb-row:hover { background: var(--bg-hover); }
+  .lb-row:nth-child(1) .lb-rank { color: var(--gold); font-weight: 700; }
+  .lb-row:nth-child(2) .lb-rank { color: #c0c0c0; font-weight: 700; }
+  .lb-row:nth-child(3) .lb-rank { color: #cd7f32; font-weight: 700; }
+  .lb-rank { width: 24px; text-align: center; font-weight: 600; color: var(--text-muted); }
+  .lb-status { width: 8px; height: 8px; border-radius: 50%; margin: 0 6px; flex-shrink: 0; }
+  .lb-status.online { background: var(--green); box-shadow: 0 0 6px rgba(67,181,129,0.4); }
+  .lb-status.offline { background: var(--text-muted); }
+  .lb-name { flex: 1; }
+  .lb-count { font-weight: 600; color: var(--accent); }
+
+  #sidebar { width: 320px; background: var(--bg-secondary); display: flex; flex-direction: column; border-left: 1px solid var(--border); }
+  #auth-panel { padding: 12px; border-bottom: 1px solid var(--border); }
+  #auth-panel h2 { font-size: 15px; color: var(--accent); margin-bottom: 8px; text-align: center; font-weight: 700; }
+  #auth-panel input { width: 100%; margin-bottom: 6px; }
+  #captcha-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; display: none; }
+  #captcha-row img { border: 1px solid var(--border); border-radius: var(--radius-sm); height: 40px; flex-shrink: 0; }
+  #captcha-row input { flex: 1; margin-bottom: 0; text-transform: uppercase; letter-spacing: 2px; }
+  #captcha-refresh { font-size: 14px; padding: 4px 8px; background: var(--bg-elevated); }
+  #auth-buttons { display: flex; gap: 6px; margin-top: 6px; }
+  #auth-buttons button { flex: 1; }
+  #auth-error { color: var(--red); font-size: 11px; margin-top: 6px; min-height: 14px; font-weight: 500; }
+  #user-bar { padding: 8px 12px; border-bottom: 1px solid var(--border); display: none; align-items: center; justify-content: space-between; background: var(--bg-tertiary); }
+  #user-bar .user-name { color: var(--accent); font-weight: 600; font-size: 13px; }
+  #guest-bar { padding: 8px 12px; border-bottom: 1px solid var(--border); display: none; align-items: center; justify-content: space-between; background: var(--bg-tertiary); }
+  #guest-bar .guest-name { color: var(--text-muted); font-style: italic; font-size: 12px; }
+  #guest-bar .guest-hint { font-size: 10px; color: var(--text-muted); }
+
+  #messages { flex: 1; overflow-y: auto; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 4px 6px; }
+  .msg { font-size: 12px; line-height: 1.5; word-wrap: break-word; color: var(--text-primary); }
+  .msg .name { color: var(--accent); font-weight: 500; }
+  .msg .name.owner { color: var(--red); font-weight: 700; }
+  .msg .name.guest { color: var(--text-muted); font-style: italic; }
+  @keyframes lava-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  .rainbow { font-weight: 700; background: linear-gradient(120deg, #ff006e, #fb5607, #ffbe0b, #8338ec, #3a86ff, #06ffa5, #ff006e); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: lava-flow 6s ease-in-out infinite; }
+  .msg .name.vip { color: var(--gold); font-weight: 700; }
+  .msg .vip-badge { font-size: 10px; font-weight: 700; margin-right: 3px; background: linear-gradient(90deg, #daa520, #ffd700, #fff68f, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .msg .rank-badge { font-size: 10px; font-weight: 700; margin-right: 3px; }
+  .msg .rank-badge.rainbow { background: linear-gradient(120deg, #ff006e, #fb5607, #ffbe0b, #8338ec, #3a86ff, #06ffa5, #ff006e); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: lava-flow 6s ease-in-out infinite; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
+  .dm-toast { background: var(--bg-elevated); border: 1px solid var(--accent); border-left: 4px solid var(--accent); border-radius: var(--radius-md); padding: 10px 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.5); pointer-events: auto; cursor: pointer; animation: toastIn 0.25s ease; }
+  .dm-toast.closing { animation: toastOut 0.25s ease forwards; }
+  .dm-toast .dm-toast-from { font-size: 12px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .dm-toast .dm-toast-text { font-size: 12px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-thread .thread-unread { background: var(--red); color: #fff; font-size: 10px; font-weight: 700; border-radius: 10px; padding: 1px 6px; margin-left: 6px; }
+  .msg-thread.has-unread { background: rgba(124,92,252,0.12); border-left: 3px solid var(--accent); }
+
+  /* Admin panel */
+  #admin-tab-btn { display: none; }
+  #admin-panel { padding: 8px; overflow-y: auto; flex: 1; background: var(--surface); margin: 4px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  #admin-panel h4 { color: var(--red); font-size: 13px; font-weight: 600; margin: 8px 0 4px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .admin-row { display: flex; gap: 4px; padding: 3px 0; font-size: 12px; align-items: center; }
+  .admin-row input { flex: 1; }
+  .admin-json { background: var(--bg-primary); color: var(--green); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 11px; padding: 8px; max-height: 200px; overflow: auto; white-space: pre-wrap; word-break: break-all; margin: 6px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .lobby-menu-item:hover { background: var(--bg-hover); }
+  .mention-item { padding: 8px 12px; font-size: 12px; cursor: pointer; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+  .mention-item:hover, .mention-item.active { background: var(--accent); color: #fff; }
+  .mention-item .at { color: var(--accent); font-weight: 700; }
+  .mention-item.active .at { color: #fff; }
+  .msg.mention-self { background: rgba(124,92,252,0.18); border-left: 3px solid var(--accent); padding: 4px 8px; margin: 2px 0; border-radius: var(--radius-sm); }
+  .msg .mention-tag { background: var(--accent-dim); color: var(--accent); font-weight: 700; padding: 0 3px; border-radius: 3px; }
+  .msg .mention-tag.self { background: var(--accent); color: #fff; }
+  .msg .crown { font-size: 12px; margin-right: 2px; }
+  .msg .timestamp { color: var(--text-muted); font-size: 10px; margin-right: 4px; }
+  .msg.system { color: var(--text-muted); font-style: italic; }
+
+  #chat-filter-bar { padding: 4px 10px; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+  #chat-filter-bar label { cursor: pointer; display: flex; align-items: center; gap: 3px; }
+
+  #chat-bar { padding: 6px; display: flex; gap: 6px; border-top: 1px solid var(--border); }
+  #chat-bar input { flex: 1; }
+
+  /* Custom scrollbars */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+  #messages::-webkit-scrollbar { width: 8px; }
+  #messages::-webkit-scrollbar-track { background: transparent; }
+  #messages::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+  #messages::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+  #messages::-webkit-scrollbar-button { display: none; }
+
+  /* Starfield background for canvas area */
+  #canvas-wrap::before { content: ''; position: absolute; bottom: 4px; left: 6px; font-size: 10px; color: var(--text-muted); z-index: 1; }
+
+  /* === E-INK MODE (Kindle Paperwhite, etc) === */
+  body.eink-mode { background: #fff !important; color: #000 !important; }
+  body.eink-mode *, body.eink-mode *::before, body.eink-mode *::after {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+  }
+  body.eink-mode #canvas-wrap, body.eink-mode #sidebar, body.eink-mode #viewport-wrap, body.eink-mode #lobby-screen, body.eink-mode #header, body.eink-mode #info-row, body.eink-mode #palette-row, body.eink-mode #messages, body.eink-mode #admin-panel { background: #fff !important; color: #000 !important; border-color: #000 !important; }
+  body.eink-mode .win-btn { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; font-weight: 700 !important; }
+  body.eink-mode .win-input { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
+  body.eink-mode #header h1, body.eink-mode .rainbow, body.eink-mode .rank-badge.rainbow { background: none !important; -webkit-text-fill-color: #000 !important; color: #000 !important; }
+  body.eink-mode .msg, body.eink-mode .msg *, body.eink-mode .dm-msg, body.eink-mode .dm-msg * { color: #000 !important; }
+  body.eink-mode .msg .name, body.eink-mode .msg .name.owner, body.eink-mode .msg .name.guest, body.eink-mode .msg .name.vip, body.eink-mode .msg .crown, body.eink-mode .lb-name, body.eink-mode .lb-count, body.eink-mode .dm-msg b { color: #000 !important; font-weight: 700 !important; }
+  body.eink-mode .msg.system, body.eink-mode .msg.system * { color: #555 !important; }
+  body.eink-mode .msg .timestamp, body.eink-mode .dm-msg .dm-time { color: #666 !important; }
+  body.eink-mode .msg .mention-tag { background: #fff !important; color: #000 !important; border: 1px solid #000; padding: 0 3px; }
+  body.eink-mode .msg .mention-tag.self { background: #000 !important; color: #fff !important; border-color: #000; }
+  body.eink-mode .msg.mention-self { background: #ddd !important; border-left: 3px solid #000 !important; }
+  body.eink-mode #typing-indicator { background: #fff !important; color: #000 !important; border-left: 3px solid #000 !important; }
+  body.eink-mode #typing-indicator #typing-text, body.eink-mode #typing-indicator #typing-dots { color: #000 !important; }
+  body.eink-mode .vip-badge, body.eink-mode .rank-badge { color: #000 !important; -webkit-text-fill-color: #000 !important; background: none !important; border: 1px solid #000; padding: 0 2px; }
+  body.eink-mode .lobby-card { background: #fff !important; border: 2px solid #000 !important; }
+  body.eink-mode .lobby-card:hover { background: #ddd !important; }
+  body.eink-mode .sidebar-tab { background: #fff !important; color: #000 !important; border-bottom: 2px solid transparent !important; }
+  body.eink-mode .sidebar-tab.active { background: #000 !important; color: #fff !important; border-bottom-color: #000 !important; }
+  body.eink-mode .color-btn { border: 2px solid #000 !important; }
+  body.eink-mode .color-btn.selected { box-shadow: 0 0 0 3px #000 !important; }
+  body.eink-mode #cooldown-warn { color: #000 !important; }
+  body.eink-mode #cooldown-fill { background: #000 !important; }
+  body.eink-mode #disconnect-banner { background: #000 !important; color: #fff !important; }
+  body.eink-mode #guest-warning { background: #000 !important; color: #fff !important; border-color: #fff !important; }
+  body.eink-mode .dm-toast { background: #fff !important; border: 3px solid #000 !important; color: #000 !important; }
+  body.eink-mode .dm-toast .dm-toast-from { color: #000 !important; }
+  body.eink-mode .notif-badge, body.eink-mode .thread-unread { background: #000 !important; color: #fff !important; }
+  body.eink-mode .lobby-menu-item:hover { background: #ddd !important; }
+  body.eink-mode #lobby-user-menu { background: #fff !important; border: 2px solid #000 !important; }
+  body.eink-mode .f-status.online, body.eink-mode .lb-status.online { background: #000 !important; }
+  body.eink-mode .f-status.offline, body.eink-mode .lb-status.offline { background: #fff !important; border: 1px solid #000; }
+
+  /* Mobile chat overlay — hidden on desktop */
+  #mobile-chat-overlay { display: none; }
+  @keyframes chatBubbleIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes chatBubbleOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-4px); } }
+  .mobile-chat-bubble { background: rgba(22,22,29,0.88); backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px 10px; font-size: 12px; color: var(--text-primary); animation: chatBubbleIn 0.2s ease; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-chat-bubble.fading { animation: chatBubbleOut 0.4s ease forwards; }
+  .mobile-chat-bubble .mcb-name { font-weight: 700; color: var(--accent); margin-right: 4px; }
+  .mobile-chat-bubble .mcb-name.owner { color: var(--red); }
+  .mobile-chat-bubble .mcb-name.guest { color: var(--text-muted); font-style: italic; }
+
+  /* Mobile sidebar toggle */
+  #mobile-sidebar-toggle { display: none; position: fixed; bottom: 14px; right: 14px; z-index: 20; width: 48px; height: 48px; font-size: 20px; border-radius: 50%; background: var(--accent); border: none; color: #fff; box-shadow: 0 4px 16px rgba(124,92,252,0.4); }
+  #mobile-sidebar-toggle:hover { background: var(--accent-hover); }
+
+  /* Mobile */
+  @media (max-width: 700px) {
+    html, body { overscroll-behavior: none; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body { flex-direction: column; }
+    #canvas-wrap { flex: 1; min-height: 0; }
+    #sidebar { width: 100%; height: 65vh; position: fixed; bottom: 0; left: 0; right: 0; z-index: 15; transform: translateY(100%); transition: transform 0.25s ease; border-left: none; border-top: 1px solid var(--border); }
+    #sidebar.open { transform: translateY(0); }
+    #mobile-sidebar-toggle { display: flex; align-items: center; justify-content: center; bottom: 18px; right: 18px; width: 56px; height: 56px; font-size: 24px; }
+    #mobile-chat-overlay { display: flex; }
+    #header { padding: 6px 8px; }
+    #header h1 { font-size: 13px; }
+    #header-right { gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    #lobby-name-display { font-size: 10px; }
+    #online { font-size: 11px; }
+    #ping-display { display: none; }
+    #btn-leave-lobby { font-size: 11px; padding: 6px 10px; }
+    #btn-export-grid, #btn-import-grid, #btn-manage-current { font-size: 10px; padding: 4px 8px; }
+    #zoom-buttons { right: 10px; gap: 6px; }
+    #zoom-buttons button { width: 44px; height: 44px; font-size: 22px; }
+    #palette-wrap { width: 100%; }
+    #palette-row { gap: 6px; padding: 8px 28px 8px 8px; max-width: 100%; width: 100%; min-height: 54px; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; justify-content: flex-start; -webkit-overflow-scrolling: touch; scrollbar-width: thin; white-space: nowrap; touch-action: pan-x; mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 36px), transparent 100%); -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 36px), transparent 100%); }
+    #palette-row::-webkit-scrollbar { height: 4px; }
+    #palette-row.at-end { mask-image: none; -webkit-mask-image: none; padding-right: 8px; }
+    #palette-scroll-hint { display: flex; position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: 900; color: var(--accent); pointer-events: none; animation: scroll-pulse 1.4s ease-in-out infinite; z-index: 2; text-shadow: 0 0 6px rgba(124,92,252,0.8); }
+    #palette-wrap.at-end #palette-scroll-hint { display: none; }
+    @keyframes scroll-pulse { 0%, 100% { transform: translate(0, -50%); opacity: 0.55; } 50% { transform: translate(4px, -50%); opacity: 1; } }
+    .color-btn { width: 36px; height: 36px; min-width: 36px; flex-shrink: 0; touch-action: manipulation; }
+    .sidebar-tab { font-size: 11px; padding: 10px 4px; }
+    #lobby-screen { padding: 12px; }
+    #lobby-screen h2 { font-size: 16px; }
+    .lobby-card { padding: 10px; }
+    .lobby-card .lobby-title { font-size: 13px; }
+    #info-row { gap: 8px; padding: 3px 6px; }
+  }
 </style>
 </head>
 <body>
-<div>
-  <h1>Redirecting to EzPlace...</h1>
-  <p>If you're not redirected, <a href="https://ezplace-server.onrender.com">click here</a>.</p>
+
+<div id="tab-warning">&#x26A0; EzPlace is open in another tab. &#x26A0;</div>
+<div id="disconnect-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:90;background:var(--red);color:#fff;text-align:center;padding:8px 12px;font-size:13px;font-weight:600;animation:fadeIn 0.3s ease;">Disconnected from server. Refreshing...</div>
+<div id="dm-toast-container" style="position:fixed;top:14px;right:14px;z-index:95;display:flex;flex-direction:column;gap:8px;max-width:320px;pointer-events:none;"></div>
+<div id="lobby-user-menu" style="display:none;position:fixed;z-index:60;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:0 8px 24px rgba(0,0,0,0.5);padding:8px;min-width:170px;">
+  <div id="lm-target-name" style="font-size:11px;color:var(--text-muted);padding:2px 4px 6px;border-bottom:1px solid var(--border);margin-bottom:6px;font-weight:600;"></div>
+  <button class="win-btn" id="lm-kick" style="width:100%;margin-bottom:4px;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border);">Kick from lobby</button>
+  <button class="win-btn" id="lm-ban" style="width:100%;margin-bottom:4px;background:var(--red);color:#fff;border:1px solid #ff6b6b;">Ban from lobby</button>
+  <button class="win-btn" id="lm-unban" style="width:100%;background:var(--green);color:#fff;border:1px solid #5dd49a;">Unban from lobby</button>
 </div>
-<script>window.location.href = "https://ezplace-server.onrender.com";</script>
+<button id="mobile-sidebar-toggle" class="win-btn">&#x1F4AC;</button>
+
+<div id="canvas-wrap">
+  <div id="header" class="win-titlebar">
+    <h1>&#x1F5BC; EzPlace</h1>
+    <div id="header-right">
+      <div id="lobby-name-display"></div>
+      <button id="btn-manage-current" class="win-btn" style="display:none">Manage</button>
+      <button id="btn-export-grid" class="win-btn" style="display:none">Export</button>
+      <button id="btn-import-grid" class="win-btn" style="display:none">Import</button>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+      <button id="btn-leave-lobby" class="win-btn" style="display:none">Leave Lobby</button>
+      <div id="online">Lobby: <span id="online-count">0</span> | All: <span id="total-online">0</span></div>
+      <div id="ping-display" style="font-size:10px;color:#ccc;">Ping: <span id="ping-ms">--</span>ms</div>
+    </div>
+  </div>
+  <div id="info-row">
+    <div id="hover-info">&nbsp;</div>
+    <div id="zoom-level">1.0x</div>
+  </div>
+  <div id="cooldown-warn">&nbsp;</div>
+  <div id="cooldown-bar"><div id="cooldown-fill"></div></div>
+  <div id="viewport-wrap">
+    <canvas id="viewport"></canvas>
+    <div id="mobile-chat-overlay" style="position:absolute;top:6px;left:6px;right:6px;z-index:6;display:flex;flex-direction:column;gap:4px;pointer-events:none;"></div>
+    <div id="guest-warning" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#cc0000;color:#ffeb3b;font-weight:800;font-size:15px;padding:14px 22px;border-radius:10px;border:2px solid #ffeb3b;box-shadow:0 6px 24px rgba(0,0,0,0.6);text-align:center;max-width:90%;pointer-events:none;z-index:5;text-shadow:0 1px 2px rgba(0,0,0,0.6);">
+      You are not logged into an account.<br>Please make an account to place pixels.
+    </div>
+    <div id="zoom-buttons">
+      <button id="zoom-in" class="win-btn">+</button>
+      <button id="zoom-out" class="win-btn">&minus;</button>
+    </div>
+  </div>
+  <div id="palette-wrap" style="position:relative;flex-shrink:0;"><div id="palette-row"></div><div id="palette-scroll-hint">&#x276F;</div></div>
+
+  <!-- Lobby browser overlay -->
+  <div id="lobby-screen">
+    <h2>Choose a Lobby</h2>
+    <div class="section-title">Public Lobbies</div>
+    <div class="lobby-list" id="public-lobbies"></div>
+    <div class="section-title">Your Lobbies</div>
+    <div class="lobby-list" id="my-lobbies"></div>
+    <div class="section-title">Join by Code</div>
+    <div id="join-code-row">
+      <input id="join-code-input" class="win-input" type="text" placeholder="Enter lobby code" maxlength="8">
+      <button id="btn-join-code" class="win-btn">Join</button>
+    </div>
+    <div class="section-title">Create Lobby</div>
+    <div id="create-lobby-row">
+      <input id="create-name" class="win-input" type="text" placeholder="Lobby name" maxlength="30">
+      <label><input type="checkbox" id="create-public" checked> Public</label>
+      <label><input type="checkbox" id="create-whitelist"> Whitelist</label>
+      <select id="create-size" class="win-input" style="width:auto;padding:5px 8px;">
+        <option value="256x256">256x256</option>
+        <option value="512x512">512x512</option>
+        <option value="256x512">256x512</option>
+        <option value="512x256">512x256</option>
+      </select>
+      <label style="font-size:11px;color:#333;">CD: <input id="create-cooldown" class="win-input" type="number" min="0" max="60" step="0.5" value="0" style="width:50px;">s</label>
+      <button id="btn-create-lobby" class="win-btn">Create</button>
+    </div>
+    <div class="lobby-error" id="lobby-error">&nbsp;</div>
+  </div>
+</div>
+
+<!-- Manage lobby modal -->
+<div id="manage-modal">
+  <div id="manage-box">
+    <h3>Manage Lobby</h3>
+    <input type="text" id="manage-name" class="win-input" placeholder="Lobby name">
+    <div class="code-display" id="manage-code"></div>
+    <label><input type="checkbox" id="manage-public"> Public (no code/whitelist)</label>
+    <label><input type="checkbox" id="manage-wl-enabled"> Whitelist enabled</label>
+    <div id="manage-wl-section">
+      <div class="wl-list" id="manage-wl-list"></div>
+      <div style="display:flex;gap:4px;margin-top:4px;">
+        <input type="text" id="manage-wl-add" class="win-input" placeholder="Add username" style="flex:1">
+        <button id="btn-manage-wl-add" class="win-btn">Add</button>
+      </div>
+    </div>
+    <div style="margin:8px 12px 4px;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;">Lobby Bans</div>
+    <div class="wl-list" id="manage-bans-list" style="margin:4px 12px 8px;"></div>
+    <div class="btn-row">
+      <button id="manage-save" class="win-btn">Save</button>
+      <button id="manage-close" class="win-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="sidebar">
+  <div id="auth-panel">
+    <div id="auth-mode-switch" style="display:flex;gap:0;margin-bottom:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+      <button id="mode-login" class="win-btn" style="flex:1;border-radius:0;border:none;background:var(--accent);color:#fff;font-weight:600;">Log In</button>
+      <button id="mode-register" class="win-btn" style="flex:1;border-radius:0;border:none;background:var(--bg-tertiary);color:var(--text-secondary);font-weight:600;">Sign Up</button>
+    </div>
+    <h2 id="auth-title">Log in to place pixels</h2>
+    <div id="auth-helper" style="font-size:11px;color:var(--text-muted);margin:-4px 0 8px;line-height:1.4;">Welcome back! Enter your username and password.</div>
+    <input id="auth-user" class="win-input" type="text" placeholder="Username (3-20 letters/numbers)" maxlength="20" autocomplete="username">
+    <input id="auth-pass" class="win-input" type="password" placeholder="Password (min 4 characters)" maxlength="64" autocomplete="current-password">
+    <div id="captcha-row" style="display:none;flex-direction:column;gap:6px;margin-bottom:4px;">
+      <div style="font-size:11px;color:var(--text-secondary);">Type the letters you see below (5 letters, not case-sensitive):</div>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <img id="captcha-img" src="" alt="captcha" style="height:50px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;">
+        <button id="captcha-refresh" class="win-btn" title="New captcha" style="padding:4px 8px;font-size:14px;">&#x21bb;</button>
+      </div>
+      <input id="captcha-ans" class="win-input" type="text" placeholder="Type captcha here" maxlength="5" autocomplete="off" autocapitalize="characters" style="letter-spacing:3px;text-align:center;font-size:15px;">
+    </div>
+    <button id="btn-auth-submit" class="win-btn" style="width:100%;padding:10px;font-size:14px;font-weight:700;margin-top:4px;">Log In</button>
+    <div id="auth-error">&nbsp;</div>
+    <div style="display:flex;align-items:center;gap:6px;margin:8px 0;color:var(--text-muted);font-size:10px;"><div style="flex:1;height:1px;background:var(--border);"></div>OR<div style="flex:1;height:1px;background:var(--border);"></div></div>
+    <button id="btn-play-guest" class="win-btn" style="width:100%;padding:9px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border);">&#x1F464; Play as Guest (view only)</button>
+    <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px;">Guests can chat and watch but can't place pixels.</div>
+  </div>
+  <div id="user-bar">
+    <span class="user-name" id="user-display"></span>
+    <button id="btn-logout" class="win-btn">Logout</button>
+  </div>
+  <div id="guest-bar">
+    <span class="guest-name" id="guest-display"></span>
+    <span class="guest-hint">Spectating - register to place pixels!</span>
+  </div>
+
+  <div id="sidebar-tabs">
+    <div class="sidebar-tab active" data-tab="chat-tab">Chat</div>
+    <div class="sidebar-tab" data-tab="lb-tab">Leaderboard</div>
+    <div class="sidebar-tab" data-tab="friends-tab">Friends<span id="friend-notif" class="notif-badge" style="display:none"></span></div>
+    <div class="sidebar-tab" data-tab="msgs-tab">DMs<span id="dm-notif" class="notif-badge" style="display:none"></span></div>
+    <div class="sidebar-tab" data-tab="admin-tab" id="admin-tab-btn">Admin</div>
+  </div>
+
+  <!-- Chat tab -->
+  <div id="chat-tab" class="tab-panel active">
+    <div id="chat-filter-bar">
+      <label><input type="checkbox" id="chat-filter-toggle" checked> Chat filter</label>
+    </div>
+    <div id="messages"></div>
+    <div id="typing-indicator" style="display:none;font-size:12px;color:var(--accent);font-weight:600;padding:6px 12px;background:var(--accent-dim);border-left:3px solid var(--accent);margin:4px 6px 0;border-radius:var(--radius-sm);"><span id="typing-text"></span><span id="typing-dots" style="display:inline-block;margin-left:2px;letter-spacing:1px;"></span></div>
+    <div id="chat-bar" style="position:relative;">
+      <div id="mention-popup" style="display:none;position:absolute;bottom:calc(100% + 4px);left:6px;right:6px;max-height:160px;overflow-y:auto;background:var(--bg-elevated);border:1px solid var(--accent);border-radius:var(--radius-md);box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:30;"></div>
+      <input id="chat-input" class="win-input" type="text" placeholder="Type a message..." maxlength="200" disabled>
+      <button id="chat-btn" class="win-btn" disabled>Send</button>
+    </div>
+  </div>
+
+  <!-- Leaderboard tab -->
+  <div id="lb-tab" class="tab-panel">
+    <div id="lb-panel" style="flex:1;overflow-y:auto;padding:4px;background:var(--win-field);border:2px solid;border-color:var(--win-shadow) var(--win-light) var(--win-light) var(--win-shadow);margin:4px;">
+      <div style="text-align:center;color:#999;font-size:11px;padding:8px;">Join a lobby to see leaderboard</div>
+    </div>
+  </div>
+
+  <!-- Friends tab -->
+  <div id="friends-tab" class="tab-panel">
+    <div id="friend-add-row">
+      <input id="friend-add-input" class="win-input" type="text" placeholder="Add friend..." maxlength="20">
+      <button id="btn-friend-add" class="win-btn">Add</button>
+    </div>
+    <div id="friends-panel"></div>
+  </div>
+
+  <!-- DMs tab -->
+  <div id="msgs-tab" class="tab-panel">
+    <div id="msg-list-view">
+      <div id="msg-list"></div>
+    </div>
+    <div id="msg-view">
+      <div id="msg-view-header">
+        <span id="msg-view-title"></span>
+        <button class="win-btn" id="btn-msg-back" style="font-size:10px;padding:1px 6px;">Back</button>
+      </div>
+      <div id="msg-view-msgs"></div>
+      <div id="msg-send-row">
+        <input id="msg-send-input" class="win-input" type="text" placeholder="Message..." maxlength="200">
+        <button id="btn-msg-send" class="win-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin tab (toothpaste only) -->
+  <div id="admin-tab" class="tab-panel">
+    <div id="admin-panel">
+      <h4>Ban / Kick</h4>
+      <div class="admin-row">
+        <input id="admin-ban-input" class="win-input" type="text" placeholder="Username">
+        <button class="win-btn" id="btn-admin-ban">Ban</button>
+        <button class="win-btn" id="btn-admin-unban">Unban</button>
+        <button class="win-btn" id="btn-admin-kick">Kick</button>
+        <button class="win-btn" id="btn-admin-ipban" style="background:#d32f2f">IP Ban</button>
+      </div>
+      <div id="admin-status" style="font-size:10px;color:#666;min-height:14px;">&nbsp;</div>
+      <h4>IP Unban</h4>
+      <div class="admin-row">
+        <input id="admin-ip-unban-input" class="win-input" type="text" placeholder="IP address">
+        <button class="win-btn" id="btn-admin-ip-unban">Unban IP</button>
+      </div>
+      <h4>Delete Account</h4>
+      <div class="admin-row">
+        <input id="admin-del-input" class="win-input" type="text" placeholder="Username">
+        <button class="win-btn" id="btn-admin-del-account" style="background:#d32f2f">Delete Account</button>
+      </div>
+      <h4>Switch User</h4>
+      <div class="admin-row">
+        <input id="admin-switch-input" class="win-input" type="text" placeholder="Username">
+        <button class="win-btn" id="btn-admin-switch-user">Switch</button>
+      </div>
+      <h4>Client Actions</h4>
+      <div class="admin-row">
+        <input id="admin-action-user" class="win-input" type="text" placeholder="Target username" style="flex:1">
+      </div>
+      <div class="admin-row">
+        <input id="admin-alert-msg" class="win-input" type="text" placeholder="Alert message" style="flex:1" maxlength="500">
+        <button class="win-btn" id="btn-admin-alert">Send Alert</button>
+      </div>
+      <div class="admin-row">
+        <input id="admin-redirect-url" class="win-input" type="text" placeholder="https://..." style="flex:1" maxlength="500">
+        <button class="win-btn" id="btn-admin-redirect">Redirect</button>
+      </div>
+      <h4>Brush Size</h4>
+      <div class="admin-row">
+        <select id="admin-brush-size" class="win-input" style="flex:1">
+          <option value="1">1x1 (normal)</option>
+          <option value="3">3x3</option>
+          <option value="5">5x5</option>
+          <option value="7">7x7</option>
+          <option value="9">9x9</option>
+          <option value="15">15x15</option>
+          <option value="25">25x25</option>
+        </select>
+      </div>
+      <h4>Rank Management</h4>
+      <div class="admin-row">
+        <input id="admin-rank-user" class="win-input" type="text" placeholder="Username" style="flex:2">
+      </div>
+      <div class="admin-row">
+        <input id="admin-rank-label" class="win-input" type="text" placeholder="Rank label (e.g. MOD)" maxlength="16" style="flex:2">
+        <input id="admin-rank-color" class="win-input" type="color" value="#daa520" style="width:50px;padding:2px;">
+      </div>
+      <div class="admin-row">
+        <button class="win-btn" id="btn-admin-rank-set">Set Rank</button>
+        <button class="win-btn" id="btn-admin-rank-remove">Remove Rank</button>
+        <button class="win-btn" id="btn-view-ranks">View Ranks</button>
+      </div>
+      <h4>View Data</h4>
+      <div class="admin-row">
+        <button class="win-btn" id="btn-view-accounts">Accounts</button>
+        <button class="win-btn" id="btn-view-bans">Bans</button>
+        <button class="win-btn" id="btn-view-ipbans">IP Bans</button>
+        <button class="win-btn" id="btn-view-ips">IPs</button>
+        <button class="win-btn" id="btn-view-friends">Friends</button>
+        <button class="win-btn" id="btn-view-lobbies">Lobbies</button>
+      </div>
+      <div id="admin-json" class="admin-json" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// When served from GitHub Pages (or any external host), route API/WS to the Render backend.
+// When served from Render itself, use same-origin (empty string).
+const BACKEND_HOST = location.hostname.includes('github.io') || location.hostname.includes('is-a.dev') || location.hostname.includes('is-into.tech') || location.hostname.includes('is-pro.dev') ? 'ezplace-server.onrender.com' : '';
+const BACKEND = BACKEND_HOST ? 'https://' + BACKEND_HOST : '';
+const WS_HOST = BACKEND_HOST || location.host;
+// Monkey-patch fetch so all /api calls go to the backend automatically
+const _origFetch = window.fetch;
+window.fetch = function(url, ...args) {
+  if (typeof url === 'string' && url.startsWith('/')) url = BACKEND + url;
+  return _origFetch.call(this, url, ...args);
+};
+
+let GRID_W = 256, GRID_H = 256;
+const COLORS = [
+  '#FFFFFF','#D4D7D9','#898D90','#515252',
+  '#FF4500','#FFA800','#FFD635','#FFF8B8',
+  '#00A368','#7EED56','#2450A4','#3690EA',
+  '#51E9F4','#811E9F','#B44AC0','#FF99AA',
+  '#9C6926','#6D001A','#BE0039','#FF3881',
+  '#6A5CFF','#009EAA','#00756F','#000000',
+  '#8B0045','#FF6B6B','#FF7F50','#0A2463',
+  '#FF0000','#40E0D0','#FF1493','#7FFF00',
+  '#228B22','#808000','#4B0082','#D8BFD8',
+  '#FFDAB9','#800020','#D2B48C','#4A2C2A',
+  '#36454F','#87CEEB','#B76E79','#98FF98',
+  '#F5DEB3','#2F4F4F','#DDA0DD'
+];
+let COOLDOWN = 500; // ms, updated per lobby
+let userHasInteracted = false; // becomes true once the user manually zooms or pans, locking the auto-fit
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 40;
+const GRID_LINE_MIN_ZOOM = 4;
+
+let grid = new Uint8Array(GRID_W * GRID_H);
+let selectedColor = 3;
+let username = '';
+let ws = null;
+let lastPlaceTime = 0;
+let cooldownTimer = null;
+let currentLobbyId = null;
+let currentLobbyName = '';
+let currentLobbyOwner = null;
+let canPlace = true;
+// Remote cursors: { username_lower: { name, x, y, isGuest, lastUpdate } }
+let remoteCursors = {};
+const REMOTE_CURSOR_TIMEOUT = 6000;
+let lastSentCursorX = -1, lastSentCursorY = -1, lastSentCursorTime = 0;
+setInterval(() => {
+  const now = Date.now();
+  let expired = false;
+  for (const k in remoteCursors) {
+    if (now - remoteCursors[k].lastUpdate > REMOTE_CURSOR_TIMEOUT) { delete remoteCursors[k]; expired = true; }
+  }
+  if (expired) render();
+}, 2000);
+let chatFilterEnabled = true;
+let isGuest = false;
+let guestName = '';
+
+const FILTERED_WORDS = ['nigger','nigga','faggot','retard','kike','spic','chink','wetback','gook','raghead','beaner','coon','darkie','tranny'];
+function filterText(text) {
+  if (!chatFilterEnabled) return text;
+  let out = text;
+  FILTERED_WORDS.forEach(w => {
+    const re = new RegExp(w, 'gi');
+    out = out.replace(re, '*'.repeat(w.length));
+  });
+  return out;
+}
+
+let camX = GRID_W / 2, camY = GRID_H / 2, zoom = 1;
+let hoverGridX = -1, hoverGridY = -1;
+let isPanning = false, panStartX = 0, panStartY = 0, camStartX = 0, camStartY = 0;
+
+const tabChannel = new BroadcastChannel('ezplace_tab');
+const tabId = Math.random().toString(36).slice(2);
+const tabWarning = document.getElementById('tab-warning');
+let blocked = false;
+tabChannel.postMessage({ type: 'claim', id: tabId });
+tabChannel.onmessage = e => {
+  if (e.data.type === 'claim' && e.data.id !== tabId) {
+    blocked = true; tabWarning.classList.add('show'); if (ws) ws.close();
+  }
+};
+window.addEventListener('focus', () => {
+  if (blocked) {
+    blocked = false; tabWarning.classList.remove('show');
+    tabChannel.postMessage({ type: 'claim', id: tabId });
+    if ((authToken || isGuest) && currentLobbyId && (!ws || ws.readyState !== WebSocket.OPEN)) connectToLobby(currentLobbyId, currentLobbyName);
+  }
+});
+
+const cvs = document.getElementById('viewport');
+const ctx = cvs.getContext('2d');
+const COLOR_RGB = COLORS.map(c => c);
+
+// E-ink (Kindle Paperwhite) mode — optimizes for slow grayscale screens
+function detectEink() {
+  // Primary detection: monochrome display media query (true for e-ink, false for any color screen)
+  try {
+    if (window.matchMedia && window.matchMedia('(monochrome)').matches) return true;
+  } catch {}
+  // Fallback: strict Kindle Paperwhite UA pattern. Only the actual e-ink Kindle browser
+  // includes "Kindle/<version>" — Kindle Fires use Silk and are explicitly NOT matched.
+  const ua = navigator.userAgent || '';
+  return /Kindle\/\d/i.test(ua);
+}
+let einkMode = detectEink();
+function applyEinkMode() {
+  document.body.classList.toggle('eink-mode', einkMode);
+  rebuildColorBytes();
+  if (offImageData) resetOffscreen();
+  render();
+}
+
+// Pre-decoded RGBA bytes for each palette color (used for fast ImageData writes)
+let COLOR_BYTES = [];
+function rebuildColorBytes() {
+  COLOR_BYTES = COLORS.map(hex => {
+    let r = parseInt(hex.slice(1,3), 16);
+    let g = parseInt(hex.slice(3,5), 16);
+    let b = parseInt(hex.slice(5,7), 16);
+    if (einkMode) {
+      // Convert to grayscale using luminance, then quantize to 5 levels for crisper e-ink rendering
+      const lum = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+      const quant = Math.round(lum / 64) * 64;
+      r = g = b = Math.min(255, quant);
+    }
+    return [r, g, b, 255];
+  });
+}
+rebuildColorBytes();
+
+// Offscreen canvas holding the raw 1:1 grid as pixels — used as a fast source for drawImage
+let offCvs = document.createElement('canvas');
+let offCtx = offCvs.getContext('2d', { willReadFrequently: true });
+let offImageData = null;
+
+function resetOffscreen() {
+  offCvs.width = GRID_W;
+  offCvs.height = GRID_H;
+  offImageData = offCtx.createImageData(GRID_W, GRID_H);
+  // Fill from current grid
+  const data = offImageData.data;
+  for (let i = 0; i < GRID_W * GRID_H; i++) {
+    const c = COLOR_BYTES[grid[i]] || COLOR_BYTES[0];
+    const o = i * 4;
+    data[o] = c[0]; data[o+1] = c[1]; data[o+2] = c[2]; data[o+3] = c[3];
+  }
+  offCtx.putImageData(offImageData, 0, 0);
+}
+
+function setOffscreenPixel(x, y, color) {
+  if (!offImageData) return;
+  const data = offImageData.data;
+  const o = (y * GRID_W + x) * 4;
+  const c = COLOR_BYTES[color] || COLOR_BYTES[0];
+  data[o] = c[0]; data[o+1] = c[1]; data[o+2] = c[2]; data[o+3] = c[3];
+  // Update only the affected pixel on the offscreen canvas
+  const single = offCtx.createImageData(1, 1);
+  single.data[0] = c[0]; single.data[1] = c[1]; single.data[2] = c[2]; single.data[3] = c[3];
+  offCtx.putImageData(single, x, y);
+}
+
+function resizeCanvas() {
+  const wrap = document.getElementById('viewport-wrap');
+  const w = wrap.clientWidth || window.innerWidth;
+  const h = wrap.clientHeight || window.innerHeight;
+  if (cvs.width !== w || cvs.height !== h) {
+    cvs.width = w; cvs.height = h;
+  }
+  render();
+}
+function fitViewToGrid() {
+  const w = cvs.width || 1, h = cvs.height || 1;
+  zoom = Math.min(w, h) / Math.max(GRID_W, GRID_H) * 0.9;
+  zoom = Math.max(MIN_ZOOM, zoom);
+  camX = GRID_W / 2; camY = GRID_H / 2;
+  document.getElementById('zoom-level').textContent = zoom.toFixed(1) + 'x';
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
+// ResizeObserver catches address-bar collapse on mobile and any other layout shifts the window resize event misses
+if (typeof ResizeObserver !== 'undefined') {
+  const ro = new ResizeObserver(() => resizeCanvas());
+  ro.observe(document.getElementById('viewport-wrap'));
+}
+
+// In e-ink mode, debounce render to avoid hammering the screen
+let einkRenderTimer = null;
+let _renderImpl;
+function render() {
+  if (einkMode) {
+    if (einkRenderTimer) return;
+    einkRenderTimer = setTimeout(() => { einkRenderTimer = null; _renderImpl(); }, 800);
+    return;
+  }
+  _renderImpl();
+}
+_renderImpl = function() {
+  // Until the user manually zooms/pans, always re-fit the view to the current canvas dimensions.
+  // This protects against mobile address-bar collapse, late layout, and any other timing issue
+  // that leaves cvs.width stale at the moment the grid handler ran.
+  if (!userHasInteracted && currentLobbyId) {
+    const wrap = document.getElementById('viewport-wrap');
+    const targetW = wrap.clientWidth || window.innerWidth;
+    const targetH = wrap.clientHeight || window.innerHeight;
+    if (targetW > 0 && targetH > 0 && (cvs.width !== targetW || cvs.height !== targetH)) {
+      cvs.width = targetW; cvs.height = targetH;
+    }
+    fitViewToGrid();
+  }
+  const w = cvs.width, h = cvs.height;
+  ctx.fillStyle = einkMode ? '#fff' : '#111'; ctx.fillRect(0, 0, w, h);
+  const left = camX - (w / 2) / zoom, top = camY - (h / 2) / zoom;
+  const startX = Math.max(0, Math.floor(left)), startY = Math.max(0, Math.floor(top));
+  const endX = Math.min(GRID_W, Math.ceil(left + w / zoom)), endY = Math.min(GRID_H, Math.ceil(top + h / zoom));
+  // Blit the visible region from the offscreen canvas in one drawImage call.
+  // This is dramatically faster than per-pixel fillRect, especially when zoomed out on 512x512.
+  if (offImageData && endX > startX && endY > startY) {
+    ctx.imageSmoothingEnabled = false;
+    const dx = Math.floor((startX - left) * zoom);
+    const dy = Math.floor((startY - top) * zoom);
+    const dw = Math.ceil((endX - startX) * zoom);
+    const dh = Math.ceil((endY - startY) * zoom);
+    ctx.drawImage(offCvs, startX, startY, endX - startX, endY - startY, dx, dy, dw, dh);
+  }
+  if (zoom >= GRID_LINE_MIN_ZOOM) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.beginPath();
+    for (let gx = startX; gx <= endX; gx++) { const sx = Math.floor((gx - left) * zoom) + 0.5; ctx.moveTo(sx, Math.floor((startY - top) * zoom)); ctx.lineTo(sx, Math.floor((endY - top) * zoom)); }
+    for (let gy = startY; gy <= endY; gy++) { const sy = Math.floor((gy - top) * zoom) + 0.5; ctx.moveTo(Math.floor((startX - left) * zoom), sy); ctx.lineTo(Math.floor((endX - left) * zoom), sy); }
+    ctx.stroke();
+  }
+  if (hoverGridX >= 0 && hoverGridX < GRID_W && hoverGridY >= 0 && hoverGridY < GRID_H) {
+    const hx = Math.floor((hoverGridX - left) * zoom);
+    const hy = Math.floor((hoverGridY - top) * zoom);
+    const hs = Math.ceil(zoom);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(hx, hy, hs, hs);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(hx - 1, hy - 1, hs + 2, hs + 2);
+  }
+  // Render remote cursors (skipped in e-ink mode to avoid screen ghosting)
+  if (einkMode) return;
+  const nowR = Date.now();
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textBaseline = 'bottom';
+  for (const key in remoteCursors) {
+    const c = remoteCursors[key];
+    if (nowR - c.lastUpdate > REMOTE_CURSOR_TIMEOUT) { delete remoteCursors[key]; continue; }
+    const cx = Math.floor((c.x - left) * zoom);
+    const cy = Math.floor((c.y - top) * zoom);
+    const cs = Math.max(2, Math.ceil(zoom));
+    if (cx + cs < 0 || cy + cs < 0 || cx > w || cy > h) continue;
+    const color = c.isGuest ? '#999999' : '#7c5cfc';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(cx, cy, cs, cs);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx, cy, cs, cs);
+    // Username label above the cursor
+    const label = c.name;
+    const padX = 4, padY = 2;
+    const tw = ctx.measureText(label).width + padX * 2;
+    const th = 14;
+    let lx = cx;
+    let ly = cy - 2;
+    if (ly - th < 0) ly = cy + cs + th;
+    if (lx + tw > w) lx = w - tw;
+    if (lx < 0) lx = 0;
+    ctx.fillStyle = color;
+    ctx.fillRect(lx, ly - th, tw, th);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(label, lx + padX, ly - padY);
+  }
+};
+
+function screenToGrid(sx, sy) {
+  const w = cvs.width, h = cvs.height;
+  const left = camX - (w / 2) / zoom, top = camY - (h / 2) / zoom;
+  return { x: Math.floor(sx / zoom + left), y: Math.floor(sy / zoom + top) };
+}
+
+function setZoom(newZoom, pivotSX, pivotSY) {
+  newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+  if (newZoom === zoom) return;
+  userHasInteracted = true;
+  if (pivotSX !== undefined) {
+    const w = cvs.width, h = cvs.height;
+    const gx = pivotSX / zoom + camX - (w / 2) / zoom, gy = pivotSY / zoom + camY - (h / 2) / zoom;
+    zoom = newZoom; camX = gx - pivotSX / zoom + (w / 2) / zoom; camY = gy - pivotSY / zoom + (h / 2) / zoom;
+  } else { zoom = newZoom; }
+  document.getElementById('zoom-level').textContent = zoom.toFixed(1) + 'x'; render();
+}
+
+cvs.addEventListener('wheel', e => { e.preventDefault(); const rect = cvs.getBoundingClientRect(); setZoom(zoom * (e.deltaY < 0 ? 1.15 : 1/1.15), e.clientX - rect.left, e.clientY - rect.top); }, { passive: false });
+document.getElementById('zoom-in').onclick = () => setZoom(zoom * 1.5);
+document.getElementById('zoom-out').onclick = () => setZoom(zoom / 1.5);
+
+function isOverGrid(sx, sy) {
+  const g = screenToGrid(sx, sy);
+  return g.x >= 0 && g.x < GRID_W && g.y >= 0 && g.y < GRID_H;
+}
+function sendCursor(x, y) {
+  if (einkMode) return;
+  if (!ws || ws.readyState !== WebSocket.OPEN || !currentLobbyId) return;
+  const now = Date.now();
+  if (x === lastSentCursorX && y === lastSentCursorY) return;
+  if (now - lastSentCursorTime < 60) return;
+  lastSentCursorX = x; lastSentCursorY = y; lastSentCursorTime = now;
+  ws.send(JSON.stringify({ type: 'cursor', x, y }));
+}
+function clearOwnCursor() {
+  if (!ws || ws.readyState !== WebSocket.OPEN || !currentLobbyId) return;
+  if (lastSentCursorX === -1 && lastSentCursorY === -1) return;
+  lastSentCursorX = -1; lastSentCursorY = -1; lastSentCursorTime = Date.now();
+  ws.send(JSON.stringify({ type: 'cursor', x: null, y: null }));
+}
+function updateCursor(sx, sy) {
+  if (isPanning) { cvs.style.cursor = 'grabbing'; }
+  else if (isOverGrid(sx, sy)) { cvs.style.cursor = 'crosshair'; }
+  else { cvs.style.cursor = 'grab'; }
+}
+cvs.addEventListener('mousedown', e => {
+  const rect = cvs.getBoundingClientRect();
+  const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  if (e.button === 1 || e.button === 2 || (e.button === 0 && !isOverGrid(sx, sy))) {
+    isPanning = true; userHasInteracted = true; panStartX = e.clientX; panStartY = e.clientY; camStartX = camX; camStartY = camY;
+    cvs.style.cursor = 'grabbing'; e.preventDefault();
+  }
+});
+window.addEventListener('mousemove', e => {
+  if (isPanning) { camX = camStartX - (e.clientX - panStartX) / zoom; camY = camStartY - (e.clientY - panStartY) / zoom; render(); }
+  const rect = cvs.getBoundingClientRect(); const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  if (sx >= 0 && sy >= 0 && sx < cvs.width && sy < cvs.height) {
+    const g = screenToGrid(sx, sy);
+    const oldHX = hoverGridX, oldHY = hoverGridY;
+    if (g.x >= 0 && g.x < GRID_W && g.y >= 0 && g.y < GRID_H) {
+      hoverInfo.textContent = `(${g.x}, ${g.y}) - ${COLORS[grid[g.y * GRID_W + g.x]]}`;
+      hoverGridX = g.x; hoverGridY = g.y;
+      sendCursor(g.x, g.y);
+    } else {
+      hoverInfo.innerHTML = '&nbsp;';
+      if (hoverGridX !== -1) clearOwnCursor();
+      hoverGridX = -1; hoverGridY = -1;
+    }
+    if (hoverGridX !== oldHX || hoverGridY !== oldHY) render();
+    updateCursor(sx, sy);
+  }
+});
+window.addEventListener('mouseup', e => { if (isPanning) { isPanning = false; const rect = cvs.getBoundingClientRect(); updateCursor(e.clientX - rect.left, e.clientY - rect.top); } });
+cvs.addEventListener('contextmenu', e => e.preventDefault());
+cvs.addEventListener('mouseleave', () => { hoverInfo.innerHTML = '&nbsp;'; hoverGridX = -1; hoverGridY = -1; clearOwnCursor(); render(); });
+const hoverInfo = document.getElementById('hover-info');
+
+let touchStartDist = 0;
+let touchStartZoom = 1;
+let touchPanning = false;
+let touchStartX = 0, touchStartY = 0, touchCamX = 0, touchCamY = 0;
+let lastTapTime = 0;
+
+function getTouchDist(t1, t2) {
+  return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+}
+
+cvs.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (e.touches.length === 2) {
+    touchStartDist = getTouchDist(e.touches[0], e.touches[1]);
+    touchStartZoom = zoom;
+    touchPanning = false;
+  } else if (e.touches.length === 1) {
+    touchPanning = true;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchCamX = camX; touchCamY = camY;
+  }
+}, { passive: false });
+
+cvs.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length === 2) {
+    const dist = getTouchDist(e.touches[0], e.touches[1]);
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const rect = cvs.getBoundingClientRect();
+    setZoom(touchStartZoom * (dist / touchStartDist), midX - rect.left, midY - rect.top);
+    touchPanning = false;
+  } else if (e.touches.length === 1 && touchPanning) {
+    const dx = (e.touches[0].clientX - touchStartX) / zoom;
+    const dy = (e.touches[0].clientY - touchStartY) / zoom;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) userHasInteracted = true;
+    camX = touchCamX - dx; camY = touchCamY - dy;
+    render();
+  }
+}, { passive: false });
+
+let touchHandledRecently = 0;
+cvs.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (e.touches.length === 0 && e.changedTouches.length === 1 && touchPanning) {
+    const t = e.changedTouches[0];
+    const dx = Math.abs(t.clientX - touchStartX);
+    const dy = Math.abs(t.clientY - touchStartY);
+    if (dx < 12 && dy < 12) {
+      touchHandledRecently = Date.now();
+      const rect = cvs.getBoundingClientRect();
+      const sx = t.clientX - rect.left, sy = t.clientY - rect.top;
+      const g = screenToGrid(sx, sy);
+      if (g.x >= 0 && g.x < GRID_W && g.y >= 0 && g.y < GRID_H) {
+        if (blocked || !username || !currentLobbyId) return;
+        if (isGuest) { cooldownWarn.textContent = 'Register an account to place pixels!'; if (cooldownWarnTimer) clearTimeout(cooldownWarnTimer); cooldownWarnTimer = setTimeout(() => { cooldownWarn.innerHTML = '&nbsp;'; }, 2000); return; }
+        if (!canPlace) { cooldownWarn.textContent = 'Spectator mode - you cannot place pixels here'; if (cooldownWarnTimer) clearTimeout(cooldownWarnTimer); cooldownWarnTimer = setTimeout(() => { cooldownWarn.innerHTML = '&nbsp;'; }, 2000); return; }
+        const now = Date.now();
+        if (!isAdminUser() && now - lastPlaceTime < COOLDOWN) { showCooldownWarn(COOLDOWN - (now - lastPlaceTime)); return; }
+        if (!isAdminUser()) startCooldownBar();
+        paintBrush(g.x, g.y);
+      }
+    }
+  }
+  touchPanning = false;
+});
+
+document.getElementById('mobile-sidebar-toggle').onclick = () => {
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('open');
+};
+
+const cooldownFill = document.getElementById('cooldown-fill');
+const cooldownWarn = document.getElementById('cooldown-warn');
+let cooldownWarnTimer = null;
+function showCooldownWarn(ms) { cooldownWarn.textContent = `Cooldown! Wait ${(ms/1000).toFixed(1)}s`; if (cooldownWarnTimer) clearTimeout(cooldownWarnTimer); cooldownWarnTimer = setTimeout(() => { cooldownWarn.innerHTML = '&nbsp;'; }, ms); }
+function startCooldownBar() { lastPlaceTime = Date.now(); cooldownFill.style.width = '100%'; if (cooldownTimer) clearInterval(cooldownTimer); cooldownTimer = setInterval(() => { const pct = Math.max(0, 100 - ((Date.now() - lastPlaceTime) / COOLDOWN) * 100); cooldownFill.style.width = pct + '%'; if (pct <= 0) clearInterval(cooldownTimer); }, 30); }
+
+function isAdminUser() { return username && username.toLowerCase() === 'toothpaste'; }
+function paintBrush(cx, cy) {
+  const size = isAdminUser() ? adminBrushSize : 1;
+  const half = Math.floor(size / 2);
+  const pixels = [];
+  for (let dy = -half; dy <= half; dy++) {
+    for (let dx = -half; dx <= half; dx++) {
+      const x = cx + dx, y = cy + dy;
+      if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) continue;
+      grid[y * GRID_W + x] = selectedColor;
+      setOffscreenPixel(x, y, selectedColor);
+      pixels.push([x, y]);
+    }
+  }
+  render();
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    if (size > 1 && isAdminUser()) {
+      ws.send(JSON.stringify({ type: 'admin_brush', pixels, color: selectedColor }));
+    } else if (pixels.length === 1) {
+      ws.send(JSON.stringify({ type: 'pixel', x: cx, y: cy, color: selectedColor }));
+    }
+  }
+}
+
+cvs.addEventListener('click', e => {
+  if (Date.now() - touchHandledRecently < 500) return; // suppress synthetic click after tap
+  if (blocked || !username || !currentLobbyId) return;
+  if (isGuest) { cooldownWarn.textContent = 'Register an account to place pixels!'; if (cooldownWarnTimer) clearTimeout(cooldownWarnTimer); cooldownWarnTimer = setTimeout(() => { cooldownWarn.innerHTML = '&nbsp;'; }, 2000); return; }
+  if (!canPlace) { cooldownWarn.textContent = 'Spectator mode - you cannot place pixels here'; if (cooldownWarnTimer) clearTimeout(cooldownWarnTimer); cooldownWarnTimer = setTimeout(() => { cooldownWarn.innerHTML = '&nbsp;'; }, 2000); return; }
+  const now = Date.now();
+  if (!isAdminUser() && now - lastPlaceTime < COOLDOWN) { showCooldownWarn(COOLDOWN - (now - lastPlaceTime)); return; }
+  const rect = cvs.getBoundingClientRect();
+  const g = screenToGrid(e.clientX - rect.left, e.clientY - rect.top);
+  if (g.x < 0 || g.x >= GRID_W || g.y < 0 || g.y >= GRID_H) return;
+  if (!isAdminUser()) startCooldownBar();
+  paintBrush(g.x, g.y);
+});
+
+const paletteEl = document.getElementById('palette-row');
+const paletteWrap = document.getElementById('palette-wrap');
+COLORS.forEach((c, i) => {
+  const btn = document.createElement('div');
+  btn.className = 'color-btn' + (i === 3 ? ' selected' : '');
+  btn.style.background = c; btn.title = c;
+  btn.addEventListener('click', () => { document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedColor = i; });
+  paletteEl.appendChild(btn);
+});
+// Hide the mobile scroll hint once the user has scrolled near the right edge
+function updatePaletteScrollState() {
+  const atEnd = paletteEl.scrollLeft + paletteEl.clientWidth >= paletteEl.scrollWidth - 8;
+  paletteWrap.classList.toggle('at-end', atEnd);
+  paletteEl.classList.toggle('at-end', atEnd);
+}
+paletteEl.addEventListener('scroll', updatePaletteScrollState, { passive: true });
+window.addEventListener('resize', updatePaletteScrollState);
+updatePaletteScrollState();
+
+const messagesEl = document.getElementById('messages');
+const chatInput = document.getElementById('chat-input');
+const chatBtn = document.getElementById('chat-btn');
+function timeStr() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+function formatExpires(secs) {
+  if (secs === null || secs === undefined) return '';
+  if (secs <= 0) return 'expiring...';
+  if (secs < 3600) return `${Math.ceil(secs / 60)}min until expiration`;
+  return `${Math.floor(secs / 3600)}h until expiration`;
+}
+// Mobile chat overlay: show chat messages above the canvas when sidebar is closed
+const MAX_MOBILE_BUBBLES = 4;
+const MOBILE_BUBBLE_DURATION = 5000;
+function showMobileChatBubble(name, text, isOwner, isMsgGuest) {
+  const overlay = document.getElementById('mobile-chat-overlay');
+  if (!overlay || getComputedStyle(overlay).display === 'none') return;
+  // Don't show if sidebar is open (user can read chat directly)
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar && sidebar.classList.contains('open')) return;
+  const bubble = document.createElement('div');
+  bubble.className = 'mobile-chat-bubble';
+  const nameClass = isOwner ? 'mcb-name owner' : (isMsgGuest ? 'mcb-name guest' : 'mcb-name');
+  bubble.innerHTML = `<span class="${nameClass}">${esc(name)}:</span> ${esc(text).slice(0, 80)}${text.length > 80 ? '...' : ''}`;
+  overlay.appendChild(bubble);
+  // Cap visible bubbles
+  while (overlay.children.length > MAX_MOBILE_BUBBLES) {
+    overlay.removeChild(overlay.firstChild);
+  }
+  // Auto-remove after duration
+  setTimeout(() => {
+    bubble.classList.add('fading');
+    setTimeout(() => { if (bubble.parentNode) bubble.parentNode.removeChild(bubble); }, 400);
+  }, MOBILE_BUBBLE_DURATION);
+}
+
+function addMsg(name, text, isOwner, isMsgGuest, isMsgVip, rank) {
+  const d = document.createElement('div'); d.className = 'msg';
+  const isTP = name.toLowerCase() === 'toothpaste';
+  const crown = isOwner ? '<span class="crown">&#x1F451;</span>' : '';
+  let rankBadge = '';
+  let nameClass = isTP ? 'name rainbow' : (isOwner ? 'name owner' : (isMsgGuest ? 'name guest' : 'name'));
+  const styleParts = [];
+  if (rank && rank.label) {
+    if (rank.color === 'rainbow') {
+      rankBadge = `<span class="rank-badge rainbow">[${esc(rank.label)}]</span>`;
+      nameClass = 'name rainbow';
+    } else {
+      const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(rank.color) ? rank.color : '#daa520';
+      rankBadge = `<span class="rank-badge" style="color:${safeColor}">[${esc(rank.label)}]</span>`;
+      nameClass = 'name';
+      styleParts.push(`color:${safeColor}`, 'font-weight:700');
+    }
+  } else if (isMsgVip && !isTP) {
+    rankBadge = '<span class="vip-badge">[VIP]</span>';
+    nameClass = 'name vip';
+  }
+  const canModerate = !isGuest && username && name.toLowerCase() !== username.toLowerCase() && (
+    (currentLobbyOwner && currentLobbyOwner.toLowerCase() === username.toLowerCase()) ||
+    username.toLowerCase() === 'toothpaste'
+  );
+  if (canModerate) styleParts.push('cursor:pointer', 'text-decoration:underline dotted');
+  const styleAttr = styleParts.length ? ` style="${styleParts.join(';')}"` : '';
+  // Parse @mentions, highlight any tag that targets the current user, and tag the whole message if so
+  const filtered = filterText(text);
+  const meLow = (username || '').toLowerCase();
+  let mentionsMe = false;
+  // Match @ followed by 3-20 alnum chars (matches the username rules)
+  const tokens = [];
+  const re = /@([A-Za-z0-9]{3,20})/g;
+  let lastIdx = 0;
+  let m;
+  while ((m = re.exec(filtered)) !== null) {
+    if (m.index > lastIdx) tokens.push({ type: 'text', value: filtered.slice(lastIdx, m.index) });
+    const target = m[1];
+    const isMe = target.toLowerCase() === meLow && meLow.length > 0;
+    if (isMe) mentionsMe = true;
+    tokens.push({ type: 'mention', value: target, isMe });
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < filtered.length) tokens.push({ type: 'text', value: filtered.slice(lastIdx) });
+  if (tokens.length === 0) tokens.push({ type: 'text', value: filtered });
+  const bodyHtml = tokens.map(t => {
+    if (t.type === 'mention') return `<span class="mention-tag${t.isMe ? ' self' : ''}">@${esc(t.value)}</span>`;
+    return esc(t.value);
+  }).join('');
+  if (mentionsMe && name.toLowerCase() !== meLow) d.classList.add('mention-self');
+  d.innerHTML = `<span class="timestamp">${timeStr()}</span>${crown}${rankBadge}<span class="${nameClass}" data-user="${esc(name)}"${styleAttr}>${esc(name)}:</span> ${bodyHtml}`;
+  if (canModerate) {
+    d.querySelector('.name').addEventListener('click', e => showLobbyUserMenu(e, name));
+  }
+  messagesEl.appendChild(d); messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+function addSystemMsg(text) { const d = document.createElement('div'); d.className = 'msg system'; d.innerHTML = `<span class="timestamp">${timeStr()}</span>${esc(text)}`; messagesEl.appendChild(d); messagesEl.scrollTop = messagesEl.scrollHeight; }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+let lobbyMenuTarget = '';
+function showLobbyUserMenu(e, targetName) {
+  e.stopPropagation();
+  lobbyMenuTarget = targetName;
+  document.getElementById('lm-target-name').textContent = targetName;
+  const menu = document.getElementById('lobby-user-menu');
+  menu.style.display = 'block';
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - 110) + 'px';
+}
+document.addEventListener('click', () => { document.getElementById('lobby-user-menu').style.display = 'none'; });
+document.getElementById('lm-kick').onclick = (e) => { e.stopPropagation(); if (lobbyMenuTarget && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'lobby_kick', target: lobbyMenuTarget })); document.getElementById('lobby-user-menu').style.display = 'none'; };
+document.getElementById('lm-ban').onclick = (e) => { e.stopPropagation(); if (lobbyMenuTarget && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'lobby_ban', target: lobbyMenuTarget })); document.getElementById('lobby-user-menu').style.display = 'none'; };
+document.getElementById('lm-unban').onclick = async (e) => {
+  e.stopPropagation();
+  document.getElementById('lobby-user-menu').style.display = 'none';
+  if (!lobbyMenuTarget || !currentLobbyId || !authToken) return;
+  try {
+    await fetch('/api/lobbies/update', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ lobby_id: currentLobbyId, lobby_unban: lobbyMenuTarget }) });
+    addSystemMsg(`Unbanned ${lobbyMenuTarget} from this lobby`);
+  } catch {}
+};
+// Typing indicator state
+const typingUsers = new Map(); // username_lower -> { name, expiresAt }
+let myTypingState = false;
+let myTypingStopTimer = null;
+const TYPING_IDLE_MS = 4000;
+const TYPING_EXPIRE_MS = 7000;
+
+function sendTyping(state) {
+  if (isGuest) return;
+  if (state === myTypingState) return;
+  myTypingState = state;
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'typing', typing: state }));
+  }
+}
+function notifyTypingFromInput() {
+  if (!chatInput.value.trim()) {
+    if (myTypingStopTimer) { clearTimeout(myTypingStopTimer); myTypingStopTimer = null; }
+    sendTyping(false);
+    return;
+  }
+  sendTyping(true);
+  if (myTypingStopTimer) clearTimeout(myTypingStopTimer);
+  myTypingStopTimer = setTimeout(() => { sendTyping(false); myTypingStopTimer = null; }, TYPING_IDLE_MS);
+}
+function renderTypingIndicator() {
+  const el = document.getElementById('typing-indicator');
+  const txt = document.getElementById('typing-text');
+  const now = Date.now();
+  // Drop expired entries
+  for (const [k, v] of typingUsers) {
+    if (v.expiresAt < now) typingUsers.delete(k);
+  }
+  const names = [...typingUsers.values()].map(v => v.name);
+  if (names.length === 0) {
+    el.style.display = 'none';
+    txt.textContent = '';
+  } else if (names.length === 1) {
+    el.style.display = '';
+    txt.textContent = `${names[0]} is typing`;
+  } else {
+    el.style.display = '';
+    txt.textContent = `${names.length}+ people are typing`;
+  }
+}
+setInterval(renderTypingIndicator, 1500);
+// Animated typing dots (".", "..", "...") that loop independently of WS updates
+let typingDotPhase = 0;
+setInterval(() => {
+  const dots = document.getElementById('typing-dots');
+  if (!dots) return;
+  typingDotPhase = (typingDotPhase + 1) % 4;
+  dots.textContent = '.'.repeat(typingDotPhase);
+}, 400);
+
+// === @ mention popup ===
+let lobbyUsers = [];
+let mentionActiveIndex = 0;
+let mentionMatches = [];
+let mentionAnchorStart = -1; // index in chatInput.value where the @ starts
+
+function getMentionContext() {
+  const v = chatInput.value;
+  const caret = chatInput.selectionStart || 0;
+  // Find the most recent @ before the caret that is at start-of-string or preceded by whitespace
+  let i = caret - 1;
+  while (i >= 0) {
+    const ch = v[i];
+    if (ch === '@') {
+      if (i === 0 || /\s/.test(v[i - 1])) return { start: i, query: v.slice(i + 1, caret) };
+      return null;
+    }
+    if (/\s/.test(ch)) return null;
+    i--;
+  }
+  return null;
+}
+
+function updateMentionPopup() {
+  const popup = document.getElementById('mention-popup');
+  const ctx = getMentionContext();
+  if (!ctx) {
+    popup.style.display = 'none';
+    mentionAnchorStart = -1;
+    return;
+  }
+  mentionAnchorStart = ctx.start;
+  const q = ctx.query.toLowerCase();
+  // Build candidate list: lobbyUsers from server, plus self for completeness
+  const all = new Set();
+  lobbyUsers.forEach(u => all.add(u));
+  if (username) all.add(username);
+  mentionMatches = [...all].filter(u => u.toLowerCase().startsWith(q) && u.toLowerCase() !== (username || '').toLowerCase()).slice(0, 8);
+  // Allow mentioning yourself too if query matches
+  if (username && username.toLowerCase().startsWith(q)) mentionMatches.unshift(username);
+  if (mentionMatches.length === 0) {
+    popup.style.display = 'none';
+    return;
+  }
+  if (mentionActiveIndex >= mentionMatches.length) mentionActiveIndex = 0;
+  popup.innerHTML = '';
+  mentionMatches.forEach((name, i) => {
+    const item = document.createElement('div');
+    item.className = 'mention-item' + (i === mentionActiveIndex ? ' active' : '');
+    item.innerHTML = `<span class="at">@</span>${esc(name)}`;
+    item.onmousedown = (e) => { e.preventDefault(); insertMention(name); };
+    popup.appendChild(item);
+  });
+  popup.style.display = 'block';
+}
+
+function insertMention(name) {
+  if (mentionAnchorStart < 0) return;
+  const v = chatInput.value;
+  const caret = chatInput.selectionStart || v.length;
+  const before = v.slice(0, mentionAnchorStart);
+  const after = v.slice(caret);
+  const insert = '@' + name + ' ';
+  chatInput.value = before + insert + after;
+  const newPos = (before + insert).length;
+  chatInput.setSelectionRange(newPos, newPos);
+  document.getElementById('mention-popup').style.display = 'none';
+  mentionAnchorStart = -1;
+  mentionActiveIndex = 0;
+  chatInput.focus();
+}
+
+function sendChat() {
+  const text = chatInput.value.trim();
+  if (!text || !username) return;
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'chat', text }));
+  else addMsg(username, text, !isGuest && currentLobbyOwner && currentLobbyOwner.toLowerCase() === username.toLowerCase(), isGuest);
+  chatInput.value = '';
+  document.getElementById('mention-popup').style.display = 'none';
+  mentionAnchorStart = -1;
+  if (myTypingStopTimer) { clearTimeout(myTypingStopTimer); myTypingStopTimer = null; }
+  sendTyping(false);
+}
+chatBtn.addEventListener('click', sendChat);
+chatInput.addEventListener('keydown', e => {
+  const popupOpen = document.getElementById('mention-popup').style.display === 'block';
+  if (popupOpen && mentionMatches.length) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); mentionActiveIndex = (mentionActiveIndex + 1) % mentionMatches.length; updateMentionPopup(); return; }
+    if (e.key === 'ArrowUp') { e.preventDefault(); mentionActiveIndex = (mentionActiveIndex - 1 + mentionMatches.length) % mentionMatches.length; updateMentionPopup(); return; }
+    if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); insertMention(mentionMatches[mentionActiveIndex]); return; }
+    if (e.key === 'Escape') { e.preventDefault(); document.getElementById('mention-popup').style.display = 'none'; mentionAnchorStart = -1; return; }
+  }
+  if (e.key === 'Enter') sendChat();
+});
+chatInput.addEventListener('input', () => { notifyTypingFromInput(); updateMentionPopup(); });
+chatInput.addEventListener('blur', () => { if (myTypingStopTimer) { clearTimeout(myTypingStopTimer); myTypingStopTimer = null; } sendTyping(false); });
+document.getElementById('chat-filter-toggle').onchange = e => { chatFilterEnabled = e.target.checked; };
+if (einkMode) applyEinkMode();
+
+const authPanel = document.getElementById('auth-panel');
+const userBar = document.getElementById('user-bar');
+const authUser = document.getElementById('auth-user');
+const authPass = document.getElementById('auth-pass');
+const captchaRow = document.getElementById('captcha-row');
+const captchaImg = document.getElementById('captcha-img');
+const captchaAns = document.getElementById('captcha-ans');
+const authError = document.getElementById('auth-error');
+let authToken = localStorage.getItem('ezplace_token') || '';
+let captchaId = '';
+let isRegisterMode = false;
+
+async function fetchCaptcha() {
+  try { const res = await fetch('/api/captcha'); const data = await res.json(); captchaId = data.id; captchaImg.src = data.image; captchaAns.value = ''; }
+  catch { captchaImg.alt = 'Server offline'; }
+}
+
+function setAuthMode(register) {
+  isRegisterMode = register;
+  const loginBtn = document.getElementById('mode-login');
+  const regBtn = document.getElementById('mode-register');
+  const submit = document.getElementById('btn-auth-submit');
+  const title = document.getElementById('auth-title');
+  const helper = document.getElementById('auth-helper');
+  if (register) {
+    loginBtn.style.background = 'var(--bg-tertiary)';
+    loginBtn.style.color = 'var(--text-secondary)';
+    regBtn.style.background = 'var(--accent)';
+    regBtn.style.color = '#fff';
+    submit.textContent = 'Create Account';
+    title.textContent = 'Create an account';
+    helper.textContent = 'Pick a username (3-20 letters/numbers), a password (4+ chars), and solve the captcha below.';
+    captchaRow.style.display = 'flex';
+    fetchCaptcha();
+  } else {
+    loginBtn.style.background = 'var(--accent)';
+    loginBtn.style.color = '#fff';
+    regBtn.style.background = 'var(--bg-tertiary)';
+    regBtn.style.color = 'var(--text-secondary)';
+    submit.textContent = 'Log In';
+    title.textContent = 'Log in to place pixels';
+    helper.textContent = 'Welcome back! Enter your username and password.';
+    captchaRow.style.display = 'none';
+  }
+  authError.innerHTML = '&nbsp;';
+}
+
+document.getElementById('mode-login').onclick = () => setAuthMode(false);
+document.getElementById('mode-register').onclick = () => setAuthMode(true);
+document.getElementById('btn-auth-submit').onclick = () => {
+  if (isRegisterMode) doAuth('/api/register', true);
+  else doAuth('/api/login', false);
+};
+document.getElementById('btn-play-guest').onclick = () => {
+  // Just scroll the lobby browser into view - they pick a public lobby to enter as guest
+  document.getElementById('lobby-screen').style.display = 'flex';
+  addSystemMsg('Pick any public lobby to join as a guest.');
+};
+
+async function doAuth(endpoint, needCaptcha) {
+  const u = authUser.value.trim(), p = authPass.value;
+  if (!u || !p) { authError.textContent = 'Enter username and password'; return; }
+  const body = { username: u, password: p };
+  if (needCaptcha) {
+    const ca = captchaAns.value.trim();
+    if (!ca) { authError.textContent = 'Solve the captcha'; return; }
+    body.captcha_id = captchaId; body.captcha_answer = ca;
+  }
+  try {
+    const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.error) { authError.textContent = data.error; if (needCaptcha) fetchCaptcha(); return; }
+    authToken = data.token; username = data.username;
+    localStorage.setItem('ezplace_token', authToken); localStorage.setItem('ezplace_user', username);
+    showLoggedIn(); loadLobbies();
+  } catch { authError.textContent = 'Server offline'; }
+}
+
+function showLoggedIn() {
+  authPanel.style.display = 'none'; userBar.style.display = 'flex';
+  document.getElementById('user-display').textContent = username;
+  chatInput.disabled = false; chatBtn.disabled = false; authError.innerHTML = '&nbsp;';
+  if (username.toLowerCase() === 'toothpaste') document.getElementById('admin-tab-btn').style.display = 'block';
+  connectSocial();
+}
+
+function logout() {
+  localStorage.removeItem('ezplace_token'); localStorage.removeItem('ezplace_user');
+  authToken = ''; username = ''; currentLobbyId = null;
+  isGuest = false; guestName = '';
+  unreadDms = {}; updateDmTabBadge();
+  document.getElementById('dm-toast-container').innerHTML = '';
+  if (ws) ws.close();
+  if (socialWs) socialWs.close();
+  authPanel.style.display = ''; userBar.style.display = 'none';
+  document.getElementById('guest-bar').style.display = 'none';
+  document.getElementById('admin-tab-btn').style.display = 'none';
+  chatInput.disabled = true; chatBtn.disabled = true;
+  setAuthMode(false);
+  document.getElementById('lobby-screen').style.display = 'flex';
+  document.getElementById('btn-leave-lobby').style.display = 'none';
+  document.getElementById('lobby-name-display').innerHTML = '';
+}
+
+document.getElementById('btn-logout').onclick = logout;
+document.getElementById('captcha-refresh').onclick = fetchCaptcha;
+authPass.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-auth-submit').click(); });
+captchaAns.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-auth-submit').click(); });
+authUser.addEventListener('keydown', e => { if (e.key === 'Enter') authPass.focus(); });
+
+const lobbyScreen = document.getElementById('lobby-screen');
+const lobbyError = document.getElementById('lobby-error');
+
+async function loadLobbies() {
+  lobbyScreen.style.display = 'flex';
+  document.getElementById('btn-leave-lobby').style.display = 'none';
+  document.getElementById('btn-export-grid').style.display = 'none';
+  document.getElementById('btn-import-grid').style.display = 'none';
+  document.getElementById('btn-manage-current').style.display = 'none';
+  document.getElementById('guest-warning').style.display = 'none';
+  document.getElementById('lobby-name-display').innerHTML = '';
+  try {
+    const res = await fetch('/api/lobbies');
+    const data = await res.json();
+    const el = document.getElementById('public-lobbies'); el.innerHTML = '';
+    data.lobbies.forEach(l => {
+      const card = document.createElement('div'); card.className = 'lobby-card';
+      const ownerLabel = l.id.startsWith('public_') ? 'Public' : `by ${esc(l.owner)}`;
+      const expiryLine = l.expires_in !== null && l.expires_in !== undefined ? `<div class="lobby-expiry">${formatExpires(l.expires_in)}</div>` : '';
+      card.innerHTML = `<div class="lobby-info"><div class="lobby-title">${esc(l.name)}</div><div class="lobby-meta">${ownerLabel} | ${l.width}x${l.height} | ${l.cooldown}s cooldown</div>${expiryLine}</div><div class="lobby-online">${l.online} online</div>`;
+      card.onclick = () => joinLobby(l.id, l.name, true);
+      el.appendChild(card);
+    });
+  } catch {}
+  if (authToken) {
+    try {
+      const res = await fetch('/api/my-lobbies', { headers: { Authorization: authToken } });
+      const data = await res.json();
+      const el = document.getElementById('my-lobbies'); el.innerHTML = '';
+      if (data.lobbies.length === 0) { el.innerHTML = '<div style="color:#555;font-size:12px;">No lobbies yet</div>'; }
+      data.lobbies.forEach(l => {
+        const card = document.createElement('div'); card.className = 'lobby-card';
+        card.innerHTML = `<div class="lobby-info"><div class="lobby-title">${esc(l.name)}</div><div class="lobby-meta">${l.public ? 'Public' : 'Code: ' + l.code}${l.whitelist_enabled ? ' | Whitelist' : ''} | ${l.width}x${l.height} | ${l.cooldown}s cd</div><div class="lobby-expiry">${formatExpires(l.expires_in)}</div></div><div class="lobby-actions"><button class="win-btn manage" data-id="${l.id}">Manage</button><button class="win-btn del" data-id="${l.id}">Delete</button></div><div class="lobby-online">${l.online} online</div>`;
+        card.querySelector('.lobby-info').onclick = () => joinLobby(l.id, l.name, l.public);
+        card.querySelector('.manage').onclick = e => { e.stopPropagation(); openManage(l); };
+        card.querySelector('.del').onclick = e => { e.stopPropagation(); deleteLobby(l.id); };
+        el.appendChild(card);
+      });
+      if (data.whitelisted && data.whitelisted.length) {
+        const hdr = document.createElement('div'); hdr.className = 'friend-section'; hdr.textContent = 'Invited Lobbies'; el.appendChild(hdr);
+        data.whitelisted.forEach(l => {
+          const card = document.createElement('div'); card.className = 'lobby-card';
+          card.innerHTML = `<div class="lobby-info"><div class="lobby-title">${esc(l.name)}</div><div class="lobby-meta">by ${esc(l.owner)} | ${l.width}x${l.height} | ${l.cooldown}s cd</div><div class="lobby-expiry">${formatExpires(l.expires_in)}</div></div><div class="lobby-online">${l.online} online</div>`;
+          card.onclick = () => joinLobby(l.id, l.name, false);
+          el.appendChild(card);
+        });
+      }
+    } catch {}
+  }
+}
+
+function joinLobby(id, name, isPublic) {
+  if (!authToken && !isPublic) { lobbyError.textContent = 'Login first'; return; }
+  if (!authToken) {
+    isGuest = true;
+    guestName = 'Guest ' + Math.floor(1000000000 + Math.random() * 9000000000);
+    username = guestName;
+    document.getElementById('guest-bar').style.display = 'flex';
+    document.getElementById('guest-display').textContent = guestName;
+    chatInput.disabled = false; chatBtn.disabled = false;
+  } else {
+    isGuest = false;
+  }
+  currentLobbyId = id; currentLobbyName = name;
+  lobbyScreen.style.display = 'none';
+  document.getElementById('btn-leave-lobby').style.display = '';
+  document.getElementById('btn-export-grid').style.display = '';
+  document.getElementById('guest-warning').style.display = isGuest ? '' : 'none';
+  document.getElementById('lobby-name-display').innerHTML = `Lobby: <b>${esc(name)}</b>`;
+  messagesEl.innerHTML = '';
+  grid = new Uint8Array(GRID_W * GRID_H); resetOffscreen(); render();
+  connectToLobby(id, name);
+}
+
+document.getElementById('btn-leave-lobby').onclick = () => {
+  intentionalClose = true;
+  if (ws) ws.close();
+  currentLobbyId = null; currentLobbyName = '';
+  typingUsers.clear(); renderTypingIndicator();
+  messagesEl.innerHTML = '';
+  document.getElementById('online-count').textContent = '0';
+  document.getElementById('btn-export-grid').style.display = 'none';
+  document.getElementById('btn-import-grid').style.display = 'none';
+  document.getElementById('btn-manage-current').style.display = 'none';
+  document.getElementById('guest-warning').style.display = 'none';
+  if (isGuest) {
+    isGuest = false; guestName = ''; username = '';
+    document.getElementById('guest-bar').style.display = 'none';
+    chatInput.disabled = true; chatBtn.disabled = true;
+  }
+  loadLobbies();
+};
+
+document.getElementById('btn-manage-current').onclick = async () => {
+  if (!currentLobbyId || !authToken) return;
+  try {
+    const res = await fetch(`/api/lobbies/info?id=${encodeURIComponent(currentLobbyId)}`, { headers: { Authorization: authToken } });
+    const data = await res.json();
+    if (data.lobby) openManage(data.lobby);
+  } catch {}
+};
+
+document.getElementById('btn-export-grid').onclick = async () => {
+  if (!currentLobbyId) return;
+  // Fetch fresh full leaderboard so all pixel counts are included (not just top 10)
+  let pixel_counts = {};
+  let original_owner = currentOriginalOwner || currentLobbyOwner || null;
+  try {
+    const res = await fetch(`/api/leaderboard?lobby_id=${encodeURIComponent(currentLobbyId)}`);
+    const data = await res.json();
+    (data.leaderboard || []).forEach(p => { pixel_counts[p.name] = p.pixels; });
+    if (data.original_owner) original_owner = data.original_owner;
+  } catch {}
+  const payload = {
+    lobby_name: currentLobbyName,
+    width: GRID_W,
+    height: GRID_H,
+    colors: COLORS,
+    grid: Array.from(grid),
+    pixel_counts,
+    original_owner,
+    exported_at: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ezplace-${currentLobbyName.replace(/[^a-z0-9]/gi, '_')}-${Date.now()}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById('btn-import-grid').onclick = () => {
+  document.getElementById('import-file').click();
+};
+
+document.getElementById('import-file').onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!data.grid || !Array.isArray(data.grid)) { alert('Invalid file: missing grid array'); return; }
+    if (typeof data.width !== 'number' || typeof data.height !== 'number') { alert('Invalid file: missing width/height'); return; }
+    if (data.grid.length !== data.width * data.height) { alert('Grid data length mismatch'); return; }
+    let gridToSend = new Array(GRID_W * GRID_H);
+    let note = '';
+    if (data.width === GRID_W && data.height === GRID_H) {
+      gridToSend = data.grid;
+    } else if (data.width >= GRID_W && data.height >= GRID_H) {
+      // Crop top-left region from larger source
+      for (let y = 0; y < GRID_H; y++) {
+        for (let x = 0; x < GRID_W; x++) {
+          gridToSend[y * GRID_W + x] = data.grid[y * data.width + x];
+        }
+      }
+      note = ` (cropping ${data.width}x${data.height} to top-left ${GRID_W}x${GRID_H})`;
+    } else if (data.width <= GRID_W && data.height <= GRID_H) {
+      // Overlay smaller source onto top-left of current canvas, keep rest
+      for (let i = 0; i < gridToSend.length; i++) gridToSend[i] = grid[i];
+      for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+          gridToSend[y * GRID_W + x] = data.grid[y * data.width + x];
+        }
+      }
+      note = ` (placing ${data.width}x${data.height} in top-left, keeping rest)`;
+    } else {
+      alert(`Mixed dimensions not supported: file is ${data.width}x${data.height}, lobby is ${GRID_W}x${GRID_H}`);
+      return;
+    }
+    if (!confirm(`Import this grid into "${currentLobbyName}"?${note}`)) return;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const msg = { type: 'import_grid', grid: gridToSend };
+      if (data.pixel_counts && typeof data.pixel_counts === 'object') msg.pixel_counts = data.pixel_counts;
+      if (data.original_owner && typeof data.original_owner === 'string') msg.original_owner = data.original_owner;
+      ws.send(JSON.stringify(msg));
+    }
+  } catch (err) {
+    alert('Failed to import: ' + err.message);
+  }
+  e.target.value = '';
+};
+
+document.getElementById('btn-join-code').onclick = async () => {
+  const code = document.getElementById('join-code-input').value.trim();
+  if (!code) return;
+  try {
+    const res = await fetch('/api/lobbies/join-code', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ code }) });
+    const data = await res.json();
+    if (data.error) { lobbyError.textContent = data.error; return; }
+    joinLobby(data.lobby.id, data.lobby.name);
+  } catch { lobbyError.textContent = 'Server offline'; }
+};
+
+document.getElementById('btn-create-lobby').onclick = async () => {
+  const name = document.getElementById('create-name').value.trim();
+  const isPublic = document.getElementById('create-public').checked;
+  const wl = document.getElementById('create-whitelist').checked;
+  const cdRaw = parseFloat(document.getElementById('create-cooldown').value);
+  const cd = Math.max(0, Math.min(60, isNaN(cdRaw) ? 0 : cdRaw));
+  const sizeVal = document.getElementById('create-size').value.split('x');
+  const lw = parseInt(sizeVal[0]), lh = parseInt(sizeVal[1]);
+  if (!name) { lobbyError.textContent = 'Enter a lobby name'; return; }
+  try {
+    const res = await fetch('/api/lobbies/create', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ name, public: isPublic, whitelist_enabled: wl, cooldown: cd, width: lw, height: lh }) });
+    const data = await res.json();
+    if (data.error) { lobbyError.textContent = data.error; return; }
+    lobbyError.innerHTML = '&nbsp;'; document.getElementById('create-name').value = '';
+    loadLobbies();
+  } catch { lobbyError.textContent = 'Server offline'; }
+};
+
+async function deleteLobby(id) {
+  if (!confirm('Delete this lobby?')) return;
+  try {
+    await fetch('/api/lobbies/delete', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ lobby_id: id }) });
+    loadLobbies();
+  } catch {}
+}
+
+let managingLobby = null;
+const manageModal = document.getElementById('manage-modal');
+
+function openManage(lobby) {
+  managingLobby = lobby;
+  const isOfficial = lobby.id && lobby.id.startsWith('public_');
+  document.getElementById('manage-name').value = lobby.name;
+  document.getElementById('manage-name').disabled = isOfficial;
+  document.getElementById('manage-code').textContent = lobby.code || '(public)';
+  document.getElementById('manage-public').checked = lobby.public;
+  document.getElementById('manage-public').disabled = isOfficial;
+  document.getElementById('manage-wl-enabled').checked = lobby.whitelist_enabled;
+  document.getElementById('manage-wl-enabled').disabled = isOfficial;
+  document.getElementById('manage-save').style.display = isOfficial ? 'none' : '';
+  renderManageWL();
+  renderManageBans();
+  manageModal.classList.add('show');
+}
+document.getElementById('manage-close').onclick = () => { manageModal.classList.remove('show'); };
+document.getElementById('manage-public').onchange = renderManageWL;
+document.getElementById('manage-wl-enabled').onchange = renderManageWL;
+
+function renderManageWL() {
+  const show = document.getElementById('manage-wl-enabled').checked;
+  document.getElementById('manage-wl-section').style.display = show ? '' : 'none';
+  if (!managingLobby) return;
+  const list = document.getElementById('manage-wl-list'); list.innerHTML = '';
+  (managingLobby.whitelist || []).forEach(u => {
+    const d = document.createElement('div'); d.className = 'wl-item';
+    d.innerHTML = `<span>${esc(u)}</span>${u.toLowerCase() !== username.toLowerCase() ? '<button>Remove</button>' : ''}`;
+    const btn = d.querySelector('button');
+    if (btn) btn.onclick = async () => {
+      await fetch('/api/lobbies/update', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ lobby_id: managingLobby.id, remove_whitelist: u }) });
+      managingLobby.whitelist = managingLobby.whitelist.filter(x => x !== u); renderManageWL();
+    };
+    list.appendChild(d);
+  });
+}
+
+function renderManageBans() {
+  const list = document.getElementById('manage-bans-list'); list.innerHTML = '';
+  if (!managingLobby) return;
+  const bans = managingLobby.lobby_bans || [];
+  if (!bans.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'font-size:11px;color:var(--text-muted);padding:4px 0;';
+    empty.textContent = 'No banned users';
+    list.appendChild(empty);
+    return;
+  }
+  bans.forEach(u => {
+    const d = document.createElement('div'); d.className = 'wl-item';
+    d.innerHTML = `<span>${esc(u)}</span><button>Unban</button>`;
+    d.querySelector('button').onclick = async () => {
+      try {
+        const res = await fetch('/api/lobbies/update', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ lobby_id: managingLobby.id, lobby_unban: u }) });
+        const data = await res.json();
+        if (data.ok && data.lobby) {
+          managingLobby.lobby_bans = data.lobby.lobby_bans || [];
+          renderManageBans();
+        }
+      } catch {}
+    };
+    list.appendChild(d);
+  });
+}
+document.getElementById('btn-manage-wl-add').onclick = async () => {
+  const inp = document.getElementById('manage-wl-add');
+  const name = inp.value.trim(); if (!name) return;
+  await fetch('/api/lobbies/update', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ lobby_id: managingLobby.id, add_whitelist: name }) });
+  if (!managingLobby.whitelist) managingLobby.whitelist = [];
+  if (!managingLobby.whitelist.includes(name)) managingLobby.whitelist.push(name);
+  inp.value = ''; renderManageWL();
+};
+document.getElementById('manage-save').onclick = async () => {
+  const body = { lobby_id: managingLobby.id, name: document.getElementById('manage-name').value, public: document.getElementById('manage-public').checked, whitelist_enabled: document.getElementById('manage-wl-enabled').checked };
+  try {
+    const res = await fetch('/api/lobbies/update', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.ok) { manageModal.classList.remove('show'); loadLobbies(); }
+  } catch {}
+};
+
+let intentionalClose = false;
+function connectToLobby(lobbyId, lobbyName) {
+  if (!authToken && !isGuest) return;
+  intentionalClose = true;
+  if (ws) ws.close();
+  intentionalClose = false;
+  const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+  const wsProto = BACKEND_HOST ? 'wss' : protocol;
+  try { ws = new WebSocket(`${wsProto}://${WS_HOST}/ws`); } catch { addSystemMsg('No server.'); return; }
+  ws.onopen = () => {
+    if (isGuest) {
+      ws.send(JSON.stringify({ type: 'guest_join', lobby_id: lobbyId, guest_name: guestName }));
+    } else {
+      ws.send(JSON.stringify({ type: 'auth', token: authToken, lobby_id: lobbyId }));
+    }
+    addSystemMsg(`Connecting to ${lobbyName}...`);
+    document.getElementById('disconnect-banner').style.display = 'none';
+  };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    switch (msg.type) {
+      case 'pixel': grid[msg.y * GRID_W + msg.x] = msg.color; setOffscreenPixel(msg.x, msg.y, msg.color); render(); break;
+      case 'cursor': if (msg.username && msg.username.toLowerCase() !== (username || '').toLowerCase()) { remoteCursors[msg.username.toLowerCase()] = { name: msg.username, x: msg.x, y: msg.y, isGuest: !!msg.guest, lastUpdate: Date.now() }; render(); } break;
+      case 'cursor_remove': if (msg.username) { delete remoteCursors[msg.username.toLowerCase()]; render(); } break;
+      case 'typing': {
+        if (!msg.username || msg.username.toLowerCase() === (username || '').toLowerCase()) break;
+        const k = msg.username.toLowerCase();
+        if (msg.typing) typingUsers.set(k, { name: msg.username, expiresAt: Date.now() + TYPING_EXPIRE_MS });
+        else typingUsers.delete(k);
+        renderTypingIndicator();
+        break;
+      }
+      case 'leaderboard_update': if (document.querySelector('[data-tab="lb-tab"]').classList.contains('active')) renderLeaderboard(msg.leaderboard); break;
+      case 'pong': { const ping = Date.now() - msg.time; const el = document.getElementById('ping-ms'); el.textContent = ping; el.style.color = ping < 100 ? '#0f0' : ping < 250 ? '#ff0' : '#f00'; } break;
+      case 'chat': addMsg(msg.username, msg.text, msg.is_owner, msg.is_guest, msg.is_vip, msg.rank); showMobileChatBubble(msg.username, msg.text, msg.is_owner, msg.is_guest); break;
+      case 'online': document.getElementById('online-count').textContent = msg.count; if (msg.total !== undefined) document.getElementById('total-online').textContent = msg.total; if (Array.isArray(msg.users)) { lobbyUsers = msg.users.slice(); } break;
+      case 'grid': GRID_W = msg.width || 256; GRID_H = msg.height || 256; grid = new Uint8Array(msg.data); resetOffscreen(); currentLobbyOwner = msg.owner || null; canPlace = msg.can_place !== false && !msg.guest; COOLDOWN = (msg.cooldown !== undefined ? msg.cooldown : 0.5) * 1000; userHasInteracted = false; resizeCanvas(); fitViewToGrid(); requestAnimationFrame(() => { resizeCanvas(); fitViewToGrid(); render(); }); if (!canPlace && !isGuest) addSystemMsg('You are spectating this whitelist lobby. You can chat but not place pixels.'); { const isOwn = (!isGuest && currentLobbyOwner && username && currentLobbyOwner.toLowerCase() === username.toLowerCase()); const isTPAdminUser = !isGuest && username && username.toLowerCase() === 'toothpaste'; document.getElementById('btn-import-grid').style.display = isOwn ? '' : 'none'; document.getElementById('btn-manage-current').style.display = (isOwn || isTPAdminUser) ? '' : 'none'; } remoteCursors = {}; typingUsers.clear(); renderTypingIndicator(); lobbyUsers = []; document.getElementById('mention-popup').style.display = 'none'; render(); break;
+      case 'system': addSystemMsg(msg.text); break;
+      case 'error': addSystemMsg(msg.text); logout(); break;
+      case 'kicked': addSystemMsg(msg.text); intentionalClose = true; currentLobbyId = null; loadLobbies(); break;
+      case 'client_alert': alert(msg.text); break;
+      case 'client_redirect': if (typeof msg.url === 'string' && (msg.url.startsWith('http://') || msg.url.startsWith('https://'))) { intentionalClose = true; location.href = msg.url; } break;
+    }
+  };
+  ws.onclose = () => { clearInterval(pingInterval); document.getElementById('ping-ms').textContent = '--'; if (!intentionalClose) { document.getElementById('disconnect-banner').style.display = ''; setTimeout(() => location.reload(), 3000); } };
+  ws.onerror = () => { ws = null; clearInterval(pingInterval); if (!intentionalClose) { document.getElementById('disconnect-banner').style.display = ''; setTimeout(() => location.reload(), 3000); } };
+  let pingInterval = setInterval(() => { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping', time: Date.now() })); }, 3000);
+}
+
+document.querySelectorAll('.sidebar-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'friends-tab' && authToken) { loadFriendsList(); const fb = document.getElementById('friend-notif'); fb.style.display = 'none'; fb.textContent = ''; }
+    if (tab.dataset.tab === 'msgs-tab' && authToken) { loadMsgList(); }
+    if (tab.dataset.tab === 'lb-tab') loadLeaderboard();
+  };
+});
+
+let currentLeaderboard = [];
+let currentOriginalOwner = null;
+function renderLeaderboard(board) {
+  // Accept either the old array form or the new { entries, original_owner } form
+  let entries, origOwner = null;
+  if (Array.isArray(board)) {
+    entries = board;
+  } else if (board && Array.isArray(board.entries)) {
+    entries = board.entries;
+    origOwner = board.original_owner || null;
+  } else {
+    entries = [];
+  }
+  currentLeaderboard = entries;
+  currentOriginalOwner = origOwner;
+  const panel = document.getElementById('lb-panel');
+  panel.innerHTML = '';
+  if (origOwner) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'font-size:11px;padding:6px 8px;border-bottom:1px solid var(--border);background:var(--bg-elevated);color:var(--gold);font-weight:600;';
+    banner.innerHTML = `&#x1F3A8; Original creator: ${esc(origOwner)}`;
+    panel.appendChild(banner);
+  }
+  if (!entries.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:#999;font-size:11px;padding:8px;';
+    empty.textContent = 'No pixels placed yet';
+    panel.appendChild(empty);
+    return;
+  }
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:11px;font-weight:bold;color:var(--text-secondary);padding:4px 6px;border-bottom:1px solid var(--border);';
+  title.textContent = 'Top Pixels Placed';
+  panel.appendChild(title);
+  const amOwner = !isGuest && currentLobbyOwner && username && currentLobbyOwner.toLowerCase() === username.toLowerCase();
+  const isTPAdmin = !isGuest && username && username.toLowerCase() === 'toothpaste';
+  entries.forEach((p, i) => {
+    const row = document.createElement('div'); row.className = 'lb-row';
+    const medal = i === 0 ? ' &#x1F947;' : i === 1 ? ' &#x1F948;' : i === 2 ? ' &#x1F949;' : '';
+    const nameClass = p.name.toLowerCase() === 'toothpaste' ? 'lb-name rainbow' : 'lb-name';
+    const canManage = (amOwner || isTPAdmin) && p.name.toLowerCase() !== username.toLowerCase();
+    const nameStyle = canManage ? ' style="cursor:pointer;text-decoration:underline dotted"' : '';
+    row.innerHTML = `<span class="lb-rank">#${i+1}${medal}</span><div class="lb-status ${p.online ? 'online' : 'offline'}"></div><span class="${nameClass}"${nameStyle}>${esc(p.name)}</span><span class="lb-count">${p.pixels.toLocaleString()}</span>`;
+    if (canManage) {
+      row.querySelector(`.${nameClass.split(' ')[0]}`).addEventListener('click', e => showLobbyUserMenu(e, p.name));
+    }
+    panel.appendChild(row);
+  });
+}
+async function loadLeaderboard() {
+  const panel = document.getElementById('lb-panel');
+  if (!currentLobbyId) { panel.innerHTML = '<div style="text-align:center;color:#999;font-size:11px;padding:8px;">Join a lobby to see leaderboard</div>'; return; }
+  try {
+    const res = await fetch(`/api/leaderboard?lobby_id=${encodeURIComponent(currentLobbyId)}`);
+    const data = await res.json();
+    renderLeaderboard({ entries: data.leaderboard, original_owner: data.original_owner });
+  } catch { panel.innerHTML = '<div style="text-align:center;color:#999;font-size:11px;padding:8px;">Error loading leaderboard</div>'; }
+}
+
+// Map of friend_lower -> unread count, used for badges in the DM list
+let unreadDms = {};
+
+function totalUnread() {
+  let n = 0;
+  for (const k in unreadDms) n += unreadDms[k] || 0;
+  return n;
+}
+
+function updateDmTabBadge() {
+  const badge = document.getElementById('dm-notif');
+  const total = totalUnread();
+  if (total > 0) {
+    badge.textContent = total;
+    badge.style.display = '';
+  } else {
+    badge.textContent = '';
+    badge.style.display = 'none';
+  }
+}
+
+function showDmToast(from, text) {
+  const container = document.getElementById('dm-toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'dm-toast';
+  toast.innerHTML = `<div class="dm-toast-from">&#x1F4E9; New message from ${esc(from)}</div><div class="dm-toast-text">${esc(text)}</div>`;
+  toast.onclick = () => {
+    toast.classList.add('closing');
+    setTimeout(() => toast.remove(), 250);
+    openDm(from);
+  };
+  container.appendChild(toast);
+  setTimeout(() => {
+    if (!toast.parentNode) return;
+    toast.classList.add('closing');
+    setTimeout(() => toast.remove(), 250);
+  }, 6000);
+}
+
+let socialWs = null;
+function connectSocial() {
+  if (!authToken) return;
+  const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+  const socialProto = BACKEND_HOST ? 'wss' : protocol;
+  try { socialWs = new WebSocket(`${socialProto}://${WS_HOST}/ws/social`); } catch { return; }
+  socialWs.onopen = () => { socialWs.send(JSON.stringify({ type: 'auth', token: authToken })); };
+  socialWs.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'client_alert') { alert(msg.text); return; }
+    if (msg.type === 'client_redirect' && typeof msg.url === 'string' && (msg.url.startsWith('http://') || msg.url.startsWith('https://'))) { intentionalClose = true; location.href = msg.url; return; }
+    if (msg.type === 'unread_dms') {
+      unreadDms = {};
+      (msg.senders || []).forEach(s => {
+        unreadDms[s.from.toLowerCase()] = s.count;
+        showDmToast(s.from, s.last_text || '(message)');
+      });
+      updateDmTabBadge();
+      const activeTab = document.querySelector('.sidebar-tab.active');
+      if (activeTab && activeTab.dataset.tab === 'msgs-tab') loadMsgList();
+    }
+    if (msg.type === 'dm') {
+      const activeTab = document.querySelector('.sidebar-tab.active');
+      const fromLow = msg.from.toLowerCase();
+      const isViewingThisThread = currentDmWith && currentDmWith.toLowerCase() === fromLow && activeTab && activeTab.dataset.tab === 'msgs-tab';
+      if (isViewingThisThread) {
+        appendDmMsg(msg.from, msg.text, msg.time);
+        // Mark as seen since we're actively viewing
+        if (socialWs && socialWs.readyState === WebSocket.OPEN) {
+          socialWs.send(JSON.stringify({ type: 'dm_seen', peer: msg.from }));
+        }
+      } else {
+        unreadDms[fromLow] = (unreadDms[fromLow] || 0) + 1;
+        updateDmTabBadge();
+        showDmToast(msg.from, msg.text);
+        if (activeTab && activeTab.dataset.tab === 'msgs-tab') loadMsgList();
+      }
+    }
+    if (msg.type === 'friend_request') {
+      loadFriendsList();
+      const activeTab = document.querySelector('.sidebar-tab.active');
+      if (!activeTab || activeTab.dataset.tab !== 'friends-tab') {
+        const badge = document.getElementById('friend-notif');
+        const cur = parseInt(badge.textContent) || 0;
+        badge.textContent = cur + 1; badge.style.display = '';
+      }
+    }
+    if (msg.type === 'friend_accepted') { loadFriendsList(); }
+  };
+  socialWs.onclose = () => { setTimeout(() => { if (authToken) connectSocial(); }, 5000); };
+}
+
+function addSection(panel, text) {
+  const s = document.createElement('div'); s.className = 'friend-section'; s.textContent = text; panel.appendChild(s);
+}
+async function loadFriendsList() {
+  if (!authToken) return;
+  const panel = document.getElementById('friends-panel'); panel.innerHTML = '';
+  try {
+    const res = await fetch('/api/friends', { headers: { Authorization: authToken } });
+    const data = await res.json();
+    if (data.incoming && data.incoming.length) {
+      addSection(panel, 'Incoming Requests');
+      data.incoming.forEach(u => {
+        const d = document.createElement('div'); d.className = 'friend-item';
+        d.innerHTML = `<span class="f-name">${esc(u)}</span><button class="win-btn" data-accept="${u}">Accept</button><button class="win-btn" data-decline="${u}">X</button>`;
+        d.querySelector('[data-accept]').onclick = async () => { await fetch('/api/friends/accept', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: u }) }); loadFriendsList(); };
+        d.querySelector('[data-decline]').onclick = async () => { await fetch('/api/friends/decline', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: u }) }); loadFriendsList(); };
+        panel.appendChild(d);
+      });
+    }
+    if (data.outgoing && data.outgoing.length) {
+      addSection(panel, 'Pending Sent');
+      data.outgoing.forEach(u => {
+        const d = document.createElement('div'); d.className = 'friend-item';
+        d.innerHTML = `<span class="f-name" style="color:#999">${esc(u)}</span><span style="font-size:10px;color:#999">pending</span>`;
+        panel.appendChild(d);
+      });
+    }
+    addSection(panel, 'Friends');
+    if (!data.friends.length) {
+      const empty = document.createElement('div'); empty.style.cssText = 'font-size:10px;color:#999;padding:4px;'; empty.textContent = 'No friends yet'; panel.appendChild(empty);
+    }
+    data.friends.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0)).forEach(f => {
+      const d = document.createElement('div'); d.className = 'friend-item';
+      d.innerHTML = `<div class="f-status ${f.online ? 'online' : 'offline'}"></div><span class="f-name">${esc(f.name)}</span><button class="win-btn" data-dm="${f.name}" style="font-size:10px;padding:1px 4px;">DM</button><button class="win-btn" data-rm="${f.name}" style="font-size:10px;padding:1px 4px;color:red;">X</button>`;
+      d.querySelector('[data-dm]').onclick = () => { openDm(f.name); };
+      d.querySelector('[data-rm]').onclick = async () => { if (confirm(`Remove ${f.name}?`)) { await fetch('/api/friends/remove', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: f.name }) }); loadFriendsList(); }};
+      panel.appendChild(d);
+    });
+  } catch {}
+}
+document.getElementById('btn-friend-add').onclick = async () => {
+  const inp = document.getElementById('friend-add-input');
+  const name = inp.value.trim(); if (!name) return;
+  const res = await fetch('/api/friends/add', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: name }) });
+  const data = await res.json();
+  inp.value = '';
+  if (data.error) alert(data.error);
+  else loadFriendsList();
+};
+
+let currentDmWith = null;
+
+async function loadMsgList() {
+  const list = document.getElementById('msg-list'); list.innerHTML = '';
+  document.getElementById('msg-list-view').style.display = '';
+  document.getElementById('msg-view').style.display = 'none';
+  currentDmWith = null;
+  try {
+    const res = await fetch('/api/friends', { headers: { Authorization: authToken } });
+    const data = await res.json();
+    if (!data.friends.length) { list.innerHTML = '<div style="font-size:10px;color:#999;padding:8px;">Add friends to start messaging</div>'; return; }
+    // Sort: friends with unread DMs first, then online, then offline
+    const sorted = [...data.friends].sort((a, b) => {
+      const ua = unreadDms[a.name.toLowerCase()] || 0;
+      const ub = unreadDms[b.name.toLowerCase()] || 0;
+      if (ua !== ub) return ub - ua;
+      if (a.online !== b.online) return a.online ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    sorted.forEach(f => {
+      const d = document.createElement('div'); d.className = 'msg-thread';
+      const unread = unreadDms[f.name.toLowerCase()] || 0;
+      if (unread > 0) d.classList.add('has-unread');
+      const badge = unread > 0 ? `<span class="thread-unread">${unread}</span>` : '';
+      d.innerHTML = `<div class="f-status ${f.online ? 'online' : 'offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;"></div>${esc(f.name)}${badge}`;
+      d.onclick = () => openDm(f.name);
+      list.appendChild(d);
+    });
+  } catch {}
+}
+
+async function openDm(friendName) {
+  document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-tab="msgs-tab"]').classList.add('active');
+  document.getElementById('msgs-tab').classList.add('active');
+  // Open sidebar on mobile so the user actually sees the thread
+  document.getElementById('sidebar').classList.add('open');
+  currentDmWith = friendName;
+  document.getElementById('msg-list-view').style.display = 'none';
+  document.getElementById('msg-view').style.display = 'flex';
+  document.getElementById('msg-view-title').textContent = friendName;
+  const el = document.getElementById('msg-view-msgs'); el.innerHTML = '';
+  // Clear unread for this thread
+  delete unreadDms[friendName.toLowerCase()];
+  updateDmTabBadge();
+  if (socialWs && socialWs.readyState === WebSocket.OPEN) {
+    socialWs.send(JSON.stringify({ type: 'dm_seen', peer: friendName }));
+  }
+  try {
+    const res = await fetch(`/api/dm/history?with=${encodeURIComponent(friendName)}`, { headers: { Authorization: authToken } });
+    const data = await res.json();
+    (data.messages || []).forEach(m => appendDmMsg(m.from, m.text, m.time));
+  } catch {}
+  document.getElementById('msg-send-input').focus();
+}
+
+function appendDmMsg(from, text, t) {
+  const el = document.getElementById('msg-view-msgs');
+  const d = document.createElement('div'); d.className = 'dm-msg';
+  const ts = t ? new Date(t * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+  d.innerHTML = `<span class="dm-time">${ts}</span><b>${esc(from)}:</b> ${esc(filterText(text))}`;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+
+document.getElementById('btn-msg-back').onclick = () => loadMsgList();
+document.getElementById('btn-msg-send').onclick = sendDm;
+document.getElementById('msg-send-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendDm(); });
+
+async function sendDm() {
+  const inp = document.getElementById('msg-send-input');
+  const text = inp.value.trim(); if (!text || !currentDmWith) return;
+  if (socialWs && socialWs.readyState === WebSocket.OPEN) {
+    socialWs.send(JSON.stringify({ type: 'dm', to: currentDmWith, text }));
+  } else {
+    await fetch('/api/dm/send', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ to: currentDmWith, text }) });
+  }
+  appendDmMsg(username, text, Date.now() / 1000);
+  inp.value = '';
+}
+
+async function adminAction(endpoint, body) {
+  try {
+    const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify(body) });
+    const data = await res.json();
+    document.getElementById('admin-status').textContent = data.error || data.message || 'Done';
+  } catch { document.getElementById('admin-status').textContent = 'Error'; }
+}
+async function adminView(endpoint) {
+  try {
+    const res = await fetch(endpoint, { headers: { Authorization: authToken } });
+    const data = await res.json();
+    const el = document.getElementById('admin-json');
+    el.style.display = 'block';
+    el.textContent = JSON.stringify(data, null, 2);
+  } catch { document.getElementById('admin-json').textContent = 'Error loading'; }
+}
+document.getElementById('btn-admin-ban').onclick = () => { const u = document.getElementById('admin-ban-input').value.trim(); if (u) adminAction('/api/admin/ban', { username: u }); };
+document.getElementById('btn-admin-unban').onclick = () => { const u = document.getElementById('admin-ban-input').value.trim(); if (u) adminAction('/api/admin/unban', { username: u }); };
+document.getElementById('btn-admin-kick').onclick = () => { const u = document.getElementById('admin-ban-input').value.trim(); if (u) adminAction('/api/admin/kick', { username: u }); };
+document.getElementById('btn-admin-ipban').onclick = () => { const u = document.getElementById('admin-ban-input').value.trim(); if (u) adminAction('/api/admin/ipban', { username: u }); };
+document.getElementById('btn-admin-ip-unban').onclick = () => { const ip = document.getElementById('admin-ip-unban-input').value.trim(); if (ip) adminAction('/api/admin/ip-unban', { ip: ip }); };
+document.getElementById('btn-admin-del-account').onclick = () => {
+  const u = document.getElementById('admin-del-input').value.trim();
+  if (!u) return;
+  if (!confirm(`PERMANENTLY delete account "${u}"? This removes their account, friends, DMs, owned lobbies, and all leaderboard entries.`)) return;
+  adminAction('/api/admin/delete-account', { username: u });
+};
+document.getElementById('btn-admin-switch-user').onclick = async () => {
+  const u = document.getElementById('admin-switch-input').value.trim();
+  if (!u) return;
+  try {
+    const res = await fetch('/api/admin/session-for', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: u }) });
+    const data = await res.json();
+    if (data.error) { document.getElementById('admin-status').textContent = data.error; return; }
+    localStorage.setItem('ezplace_token', data.token);
+    localStorage.setItem('ezplace_user', data.username);
+    location.reload();
+  } catch { document.getElementById('admin-status').textContent = 'Server offline'; }
+};
+document.getElementById('btn-admin-alert').onclick = () => {
+  const u = document.getElementById('admin-action-user').value.trim();
+  const text = document.getElementById('admin-alert-msg').value.trim();
+  if (!u || !text) { document.getElementById('admin-status').textContent = 'Need username and message'; return; }
+  adminAction('/api/admin/alert', { username: u, text });
+};
+document.getElementById('btn-admin-redirect').onclick = () => {
+  const u = document.getElementById('admin-action-user').value.trim();
+  const url = document.getElementById('admin-redirect-url').value.trim();
+  if (!u || !url) { document.getElementById('admin-status').textContent = 'Need username and URL'; return; }
+  if (!url.startsWith('http://') && !url.startsWith('https://')) { document.getElementById('admin-status').textContent = 'URL must start with http:// or https://'; return; }
+  adminAction('/api/admin/redirect', { username: u, url });
+};
+let adminBrushSize = 1;
+document.getElementById('admin-brush-size').onchange = e => { adminBrushSize = parseInt(e.target.value) || 1; };
+document.getElementById('btn-view-accounts').onclick = () => adminView('/api/admin/accounts');
+document.getElementById('btn-view-bans').onclick = () => adminView('/api/admin/bans');
+document.getElementById('btn-view-ipbans').onclick = () => adminView('/api/admin/ipbans');
+document.getElementById('btn-view-ips').onclick = () => adminView('/api/admin/ips');
+document.getElementById('btn-view-friends').onclick = () => adminView('/api/admin/friends');
+document.getElementById('btn-view-lobbies').onclick = () => adminView('/api/admin/lobbies');
+document.getElementById('btn-admin-rank-set').onclick = () => {
+  const u = document.getElementById('admin-rank-user').value.trim();
+  const label = document.getElementById('admin-rank-label').value.trim();
+  const color = document.getElementById('admin-rank-color').value;
+  if (!u || !label) { document.getElementById('admin-status').textContent = 'Username and label required'; return; }
+  adminAction('/api/admin/rank-set', { username: u, label, color });
+};
+document.getElementById('btn-admin-rank-remove').onclick = () => {
+  const u = document.getElementById('admin-rank-user').value.trim();
+  if (u) adminAction('/api/admin/rank-remove', { username: u });
+};
+document.getElementById('btn-view-ranks').onclick = () => adminView('/api/admin/ranks');
+
+function initView() {
+  resizeCanvas();
+  fitViewToGrid();
+  resetOffscreen();
+  render();
+}
+
+if (authToken && localStorage.getItem('ezplace_user')) {
+  username = localStorage.getItem('ezplace_user');
+  showLoggedIn();
+} else {
+  // If this IP has previously logged in, default the panel to Log In; otherwise default to Sign Up.
+  fetch('/api/auth/suggest-mode').then(r => r.json()).then(d => {
+    if (d && d.mode === 'register') setAuthMode(true);
+    else setAuthMode(false);
+  }).catch(() => {});
+}
+initView();
+loadLobbies();
+addSystemMsg('Welcome to EzPlace! Log in to place pixels, or join a public lobby as guest to spectate.');
+addSystemMsg('Scroll to zoom. Right-click drag to pan.');
+</script>
 </body>
 </html>
