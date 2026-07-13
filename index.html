@@ -93,6 +93,7 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes movieArrowBob { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -4px); } }
   .msg { animation: fadeIn 0.2s ease; }
   .lobby-card { animation: slideIn 0.2s ease; transition: all 0.2s ease; }
   .friend-item { animation: fadeIn 0.15s ease; }
@@ -170,8 +171,11 @@
   .friend-item:hover { background: var(--bg-hover); }
   .friend-item .f-status { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
   .friend-item .f-status.online { background: var(--green); box-shadow: 0 0 6px rgba(67,181,129,0.4); }
+  .friend-item .f-status.afk { background: #f0b232; box-shadow: 0 0 6px rgba(240,178,50,0.45); }
   .friend-item .f-status.offline { background: var(--text-muted); }
-  .friend-item .f-name { flex: 1; }
+  .friend-item .f-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .friend-item .f-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .friend-item .f-sub { font-size: 10px; color: var(--text-muted); }
   .friend-item button { font-size: 10px; padding: 3px 8px; margin-left: 4px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; }
   .friend-item button:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
   .friend-section { font-size: 11px; font-weight: 500; color: var(--text-muted); padding: 6px 4px 4px; border-bottom: 1px solid var(--border); }
@@ -221,8 +225,8 @@
   #auth-buttons { display: flex; gap: 6px; margin-top: 6px; }
   #auth-buttons button { flex: 1; }
   #auth-error { color: var(--red); font-size: 11px; margin-top: 6px; min-height: 14px; font-weight: 500; }
-  #user-bar { padding: 8px 12px; border-bottom: 1px solid var(--border); display: none; align-items: center; justify-content: space-between; background: var(--bg-tertiary); }
-  #user-bar .user-name { color: var(--accent); font-weight: 600; font-size: 13px; }
+  #user-bar { padding: 8px 12px; border-bottom: 1px solid var(--border); display: none; align-items: center; justify-content: space-between; background: var(--bg-tertiary); gap: 8px; flex-wrap: wrap; }
+  #user-bar .user-name { color: var(--accent); font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   #guest-bar { padding: 8px 12px; border-bottom: 1px solid var(--border); display: none; align-items: center; justify-content: space-between; background: var(--bg-tertiary); }
   #guest-bar .guest-name { color: var(--text-muted); font-style: italic; font-size: 12px; }
   #guest-bar .guest-hint { font-size: 10px; color: var(--text-muted); }
@@ -243,6 +247,9 @@
   .msg .name.vip { color: var(--gold); font-weight: 700; }
   .msg .vip-badge { font-size: 10px; font-weight: 700; margin-right: 3px; color: #daa520; }
   .msg .rank-badge { font-size: 10px; font-weight: 700; margin-right: 3px; }
+  .ez-avatar { display: inline-block; width: 26px; height: 26px; border-radius: 50%; vertical-align: middle; margin-right: 5px; object-fit: cover; background: var(--bg-elevated); flex-shrink: 0; }
+  .ez-avatar.lg { width: 36px; height: 36px; margin-right: 8px; }
+  .ez-avatar.xl { width: 72px; height: 72px; margin-right: 0; }
   .msg .rank-badge.rainbow { background: linear-gradient(120deg, #ff006e, #fb5607, #ffbe0b, #8338ec, #3a86ff, #06ffa5, #ff006e); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: lava-flow 6s ease-in-out infinite; }
   .mod-name, .rank-badge.mod-rank { font-weight: 700; color: #3b82f6; }
   @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -308,6 +315,8 @@
   body.eink-mode .win-input { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
   body.eink-mode #header h1, body.eink-mode .rainbow, body.eink-mode .rank-badge.rainbow, body.eink-mode .mod-name, body.eink-mode .rank-badge.mod-rank { background: none !important; -webkit-text-fill-color: #000 !important; color: #000 !important; }
   body.eink-mode .msg, body.eink-mode .msg *, body.eink-mode .dm-msg, body.eink-mode .dm-msg * { color: #000 !important; }
+  body.no-anim *, body.no-anim *::before, body.no-anim *::after { animation: none !important; transition: none !important; }
+  body.no-panorama #lobby-bg-canvas, body.no-panorama #lobby-bg-overlay { display: none !important; }
   body.eink-mode .msg .name, body.eink-mode .msg .name.owner, body.eink-mode .msg .name.guest, body.eink-mode .msg .name.vip, body.eink-mode .msg .crown, body.eink-mode .lb-name, body.eink-mode .lb-count, body.eink-mode .dm-msg b { color: #000 !important; font-weight: 700 !important; }
   body.eink-mode .msg.system, body.eink-mode .msg.system * { color: #555 !important; }
   body.eink-mode .msg .timestamp, body.eink-mode .dm-msg .dm-time { color: #666 !important; }
@@ -501,7 +510,15 @@
         <canvas id="economy-graph" width="460" height="180" style="width:100%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:crosshair;"></canvas>
         <div id="economy-graph-tip" style="display:none;position:absolute;background:rgba(0,0,0,0.85);color:#fff;border:1px solid var(--accent);border-radius:4px;padding:3px 6px;font-size:11px;font-family:'JetBrains Mono','Fira Code',monospace;pointer-events:none;white-space:nowrap;z-index:5;"></div>
       </div>
-      <div id="economy-graph-caption" style="font-size:10px;color:var(--text-muted);">history (up to 7 days, hourly snapshots) - hover for exact values</div>
+      <div style="display:flex;align-items:center;gap:6px;width:100%;max-width:460px;font-size:11px;color:var(--text-muted);">
+        <span>Zoom:</span>
+        <button class="win-btn econ-zoom" data-econ-range="all" style="font-size:10px;padding:2px 8px;background:var(--accent);color:#fff;">All</button>
+        <button class="win-btn econ-zoom" data-econ-range="86400" style="font-size:10px;padding:2px 8px;">24h</button>
+        <button class="win-btn econ-zoom" data-econ-range="21600" style="font-size:10px;padding:2px 8px;">6h</button>
+        <button class="win-btn econ-zoom" data-econ-range="3600" style="font-size:10px;padding:2px 8px;">1h</button>
+        <span style="flex:1;"></span>
+        <span id="economy-graph-caption" style="font-size:10px;color:var(--text-muted);">hover for values</span>
+      </div>
     </div>
     <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
       <span>Clans</span>
@@ -519,9 +536,9 @@
       <label><input type="checkbox" id="create-public" checked> Public</label>
       <label><input type="checkbox" id="create-whitelist"> Whitelist</label>
       <select id="create-size" class="win-input" style="width:auto;padding:5px 8px;">
-        <option value="256x256">256x256 (free)</option>
-        <option value="512x512">512x512 (10 $)</option>
-        <option value="1024x1024">1024x1024 (20 $)</option>
+        <option value="256x256" data-w="256" data-h="256">256x256 (50 $)</option>
+        <option value="512x512" data-w="512" data-h="512">512x512 (100 $)</option>
+        <option value="1024x1024" data-w="1024" data-h="1024">1024x1024 (200 $)</option>
       </select>
       <label style="font-size:11px;color:#333;">CD: <input id="create-cooldown" class="win-input" type="number" min="0" max="60" step="0.5" value="0" style="width:50px;">s</label>
       <button id="btn-create-lobby" class="win-btn">Create</button>
@@ -531,6 +548,128 @@
 </div>
 
 <!-- Manage lobby modal -->
+<div id="report-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:60;align-items:center;justify-content:center;padding:14px;">
+  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-lg);width:420px;max-width:100%;display:flex;flex-direction:column;">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:700;font-size:14px;color:#d32f2f;">⚠ Report Inappropriate Drawing</div>
+      <button id="btn-report-close" class="win-btn" style="background:var(--bg-elevated);font-size:11px;padding:4px 10px;">Cancel</button>
+    </div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:12px;color:var(--text-primary);line-height:1.4;">Report inappropriate drawings. <b style="color:#d32f2f;">Trash-talking is not a valid report.</b></div>
+      <div style="font-size:11px;color:var(--text-muted);">Click <b>Select area</b>, then drag a rectangle on the canvas around the inappropriate drawing. Moderators will see who painted each pixel in that area.</div>
+      <div id="report-selection-info" style="font-size:11px;color:var(--text-muted);padding:6px 10px;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px dashed var(--border);">No area selected yet.</div>
+      <textarea id="report-reason" class="win-input" placeholder="Optional: describe what's wrong (max 200 chars)" maxlength="200" rows="2" style="resize:vertical;font-family:inherit;"></textarea>
+      <div id="report-status" style="font-size:11px;min-height:14px;color:var(--text-muted);"></div>
+      <div style="display:flex;gap:8px;">
+        <button id="btn-report-select" class="win-btn" style="flex:1;background:var(--accent);color:#fff;">Select area</button>
+        <button id="btn-report-submit" class="win-btn" style="flex:1;background:#d32f2f;color:#fff;" disabled>Submit report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="report-select-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:55;pointer-events:none;">
+  <div id="report-select-hint" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#d32f2f;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.4);pointer-events:none;">Drag on the canvas to select the inappropriate area · Tap outside canvas to cancel</div>
+  <div id="report-select-box" style="display:none;position:absolute;border:2px dashed #d32f2f;background:rgba(211,47,47,0.15);pointer-events:none;"></div>
+</div>
+
+<div id="account-settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:60;align-items:center;justify-content:center;padding:14px;">
+  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-lg);width:380px;max-width:100%;display:flex;flex-direction:column;">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:700;font-size:14px;">Account Settings</div>
+      <button id="btn-account-settings-close" class="win-btn" style="background:var(--bg-elevated);font-size:11px;padding:4px 10px;">Close</button>
+    </div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:6px 0;">
+        <img id="settings-avatar-preview" class="ez-avatar xl" src="" alt="">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+          <div style="font-size:12px;font-weight:600;">Profile Picture</div>
+          <div style="display:flex;gap:6px;">
+            <button id="btn-settings-avatar-upload" class="win-btn" style="background:var(--accent);color:#fff;font-size:11px;padding:4px 10px;">Upload</button>
+            <button id="btn-settings-avatar-clear" class="win-btn" style="background:var(--bg-elevated);font-size:11px;padding:4px 10px;">Remove</button>
+          </div>
+          <input id="settings-avatar-file" type="file" accept="image/*" style="display:none;">
+          <div id="settings-avatar-status" style="font-size:10px;color:var(--text-muted);min-height:12px;"></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);">Username: <b id="account-settings-username" style="color:var(--accent);"></b> <span style="opacity:0.7;">(cannot be changed)</span></div>
+      <div style="font-size:11px;color:var(--text-muted);">AFK time: <b id="account-settings-afk" style="color:var(--text);">active</b></div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;font-size:12px;font-weight:600;">Preferences</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="checkbox" id="pref-hide-tips"> Hide "DID YOU KNOW?" banner permanently</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="checkbox" id="pref-hide-panorama"> Disable main menu panorama</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="checkbox" id="pref-disable-anim"> Disable animations</label>
+      <div style="border-top:1px solid var(--border);padding-top:10px;font-size:12px;font-weight:600;">Change Password</div>
+      <input id="account-old-pw" class="win-input" type="password" placeholder="Current password" autocomplete="current-password">
+      <input id="account-new-pw" class="win-input" type="password" placeholder="New password (4+ chars)" autocomplete="new-password">
+      <input id="account-new-pw2" class="win-input" type="password" placeholder="Confirm new password" autocomplete="new-password">
+      <div id="account-pw-status" style="font-size:11px;min-height:14px;color:var(--text-muted);"></div>
+      <button id="btn-account-change-pw" class="win-btn" style="background:var(--accent);color:#fff;">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<div id="sketch-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:75;align-items:center;justify-content:center;padding:10px;">
+  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-lg);width:820px;max-width:100%;max-height:95vh;display:flex;flex-direction:column;">
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-weight:700;font-size:14px;">✏️ Sketch & Guess <span id="sketch-room-code" style="color:var(--text-muted);font-size:11px;font-weight:400;"></span></div>
+        <div id="sketch-status-bar" style="font-size:11px;color:var(--text-muted);"></div>
+      </div>
+      <button id="btn-sketch-close" class="win-btn" style="background:var(--bg-elevated);font-size:11px;padding:4px 10px;">Leave</button>
+    </div>
+    <div style="display:flex;gap:8px;padding:10px;overflow:hidden;flex:1;min-height:0;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
+        <div id="sketch-prompt-display" style="text-align:center;font-weight:700;font-size:16px;padding:6px 8px;background:var(--bg-secondary);border-radius:var(--radius-sm);letter-spacing:2px;min-height:32px;"></div>
+        <canvas id="sketch-canvas" width="64" height="64" style="width:100%;aspect-ratio:1/1;image-rendering:pixelated;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:crosshair;touch-action:none;"></canvas>
+        <div id="sketch-drawer-tools" style="display:none;gap:4px;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:10px;color:var(--text-muted);">Colors:</span>
+          <div id="sketch-palette" style="display:flex;gap:2px;flex-wrap:wrap;flex:1;"></div>
+          <button id="btn-sketch-clear" class="win-btn" style="background:var(--bg-elevated);color:var(--text-primary);font-size:10px;padding:2px 6px;">Clear</button>
+        </div>
+        <div id="sketch-guess-row" style="display:none;gap:4px;">
+          <input id="sketch-guess-input" class="win-input" type="text" placeholder="Type your guess..." maxlength="60" style="flex:1;font-size:12px;">
+          <button id="btn-sketch-guess" class="win-btn" style="background:var(--accent);color:#fff;font-size:11px;">Guess</button>
+        </div>
+        <div id="sketch-lobby-panel" style="display:none;flex-direction:column;gap:6px;padding:8px;background:var(--bg-secondary);border-radius:var(--radius-sm);">
+          <div style="font-size:12px;font-weight:700;">Waiting for host to start...</div>
+          <div id="sketch-lobby-info" style="font-size:11px;color:var(--text-muted);"></div>
+          <button id="btn-sketch-start" class="win-btn" style="display:none;background:var(--accent);color:#fff;">Start Game</button>
+        </div>
+      </div>
+      <div style="width:220px;display:flex;flex-direction:column;gap:6px;min-height:0;flex-shrink:0;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);">Players</div>
+        <div id="sketch-players" style="display:flex;flex-direction:column;gap:3px;font-size:11px;max-height:120px;overflow-y:auto;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-top:4px;">Guesses</div>
+        <div id="sketch-guesses" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;font-size:11px;background:var(--bg-secondary);border-radius:var(--radius-sm);padding:6px;min-height:0;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="movies-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:70;align-items:center;justify-content:center;padding:14px;">
+  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-lg);width:900px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <div style="font-weight:700;font-size:14px;">🎬 Movies</div>
+      <button id="btn-movies-close" class="win-btn" style="background:var(--bg-elevated);font-size:11px;padding:4px 10px;">Close</button>
+    </div>
+    <div id="movies-player-wrap" style="display:none;padding:0;background:#000;position:relative;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);">
+        <button id="btn-movies-back" class="win-btn" style="background:var(--bg-elevated);font-size:11px;padding:4px 10px;">← Back to list</button>
+        <div id="movies-now-playing" style="font-weight:700;font-size:13px;color:var(--accent);"></div>
+        <div style="width:120px;"></div>
+      </div>
+      <div style="position:relative;width:100%;padding-top:56.25%;background:#000;">
+        <iframe id="movies-iframe" src="" allow="autoplay; fullscreen" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"></iframe>
+      </div>
+    </div>
+    <div id="movies-paste-row" style="display:flex;gap:6px;align-items:center;padding:10px 16px 6px;border-bottom:1px solid var(--border);">
+      <input id="movies-paste-input" class="win-input" type="text" placeholder="Paste a YouTube URL (or Google Drive share link)" style="flex:1;font-size:12px;">
+      <button id="btn-movies-paste-play" class="win-btn" style="background:#d32f2f;color:#fff;font-weight:700;">▶ Play</button>
+    </div>
+    <div id="movies-list" style="padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <div id="group-create-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:60;align-items:center;justify-content:center;padding:14px;">
   <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-lg);width:380px;max-width:100%;max-height:80vh;display:flex;flex-direction:column;">
     <div style="padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;">New Group Chat</div>
@@ -704,8 +843,18 @@
             <span id="custom-rank-preview" style="font-size:10px;font-weight:700;color:#ee5a52;">[PREVIEW]</span>
           </div>
         </div>
+        <div id="shop-item-name-color" style="display:flex;flex-direction:column;gap:6px;padding:10px;background:var(--bg-secondary);border-radius:var(--radius-sm);">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <div><div style="font-weight:700;">Username Color</div><div style="font-size:11px;color:var(--text-muted);">Color your username in chat. Pay once, change anytime free.</div></div>
+            <button id="btn-buy-name-color" class="win-btn" style="background:var(--accent);color:#fff;flex-shrink:0;">30 $</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <input id="name-color-picker" type="color" value="#7c5cfc" style="width:36px;height:28px;padding:2px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;">
+            <span id="name-color-preview" style="font-size:12px;font-weight:700;color:#7c5cfc;">PREVIEW</span>
+          </div>
+        </div>
         <div id="shop-item-streak-48hr" style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--bg-secondary);border-radius:var(--radius-sm);"><div><div style="font-weight:700;">48hr Streak Window 🕐</div><div style="font-size:11px;color:var(--text-muted);">Lets you skip a day without losing your streak. Permanent.</div></div><button class="win-btn shop-buy" data-item="streak_48hr" style="background:var(--accent);color:#fff;flex-shrink:0;margin-left:10px;">1200 $</button></div>
-        <div id="shop-item-streak-pass" style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--bg-secondary);border-radius:var(--radius-sm);"><div><div style="font-weight:700;">Streak Pass 🛡 <span id="streak-pass-count" style="color:var(--gold);font-size:11px;"></span></div><div style="font-size:11px;color:var(--text-muted);">Stackable insurance: auto-restores your streak if you'd otherwise reset to 1. One pass per save.</div></div><button class="win-btn shop-buy" data-item="streak_pass" style="background:var(--accent);color:#fff;flex-shrink:0;margin-left:10px;">800 $</button></div>
+        <div id="shop-item-streak-pass" style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--bg-secondary);border-radius:var(--radius-sm);gap:8px;"><div style="flex:1;min-width:0;"><div style="font-weight:700;">Streak Pass 🛡 <span id="streak-pass-count" style="color:var(--gold);font-size:11px;"></span></div><div style="font-size:11px;color:var(--text-muted);">Stackable insurance: auto-restores your streak if you'd otherwise reset to 1. One pass per save. Sell back for 400 $.</div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="win-btn shop-buy" data-item="streak_pass" style="background:var(--accent);color:#fff;">800 $</button><button class="win-btn shop-sell" data-item="streak_pass" style="background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);">Sell 400 $</button></div></div>
       </div>
 
       <!-- CASINO tab (each game collapsed by default; click to open) -->
@@ -792,12 +941,31 @@
               <label style="font-size:11px;">Bet <input id="battle-bet" type="number" min="0" value="10" class="win-input" style="width:60px;font-size:12px;padding:2px 4px;"></label>
               <label style="font-size:11px;">Draw secs <input id="battle-secs" type="number" min="30" max="300" value="90" class="win-input" style="width:60px;font-size:12px;padding:2px 4px;"></label>
             </div>
+            <label style="font-size:11px;display:flex;gap:4px;align-items:center;"><span style="flex-shrink:0;">Theme (optional):</span> <input id="battle-theme" type="text" maxlength="60" placeholder="e.g. 'draw a dragon'" class="win-input" style="flex:1;font-size:12px;padding:2px 4px;"></label>
             <div style="display:flex;gap:6px;">
               <button id="btn-battle-create" class="win-btn" style="background:var(--accent);color:#fff;flex:1;">Create Room</button>
               <button id="btn-battle-list" class="win-btn" style="background:var(--bg-elevated);color:var(--text-primary);flex:1;">Find Room</button>
             </div>
             <div id="battle-rooms" style="display:none;flex-direction:column;gap:4px;font-size:12px;"></div>
             <div id="battle-msg" style="font-size:11px;min-height:14px;color:var(--text-muted);"></div>
+          </div>
+        </details>
+
+        <details class="game-acc"><summary>Sketch & Guess <span class="game-hint">2-8 players, one draws, others guess. No PlaceBucks.</span></summary>
+          <div class="game-body">
+            <div style="font-size:11px;color:var(--text-muted);">Take turns drawing. Others try to guess the word. First correct answer wins the round. Free — no PlaceBucks earned or spent.</div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              <label style="font-size:11px;">Prompts: </label>
+              <label style="font-size:11px;"><input type="radio" name="sketch-src" value="random" checked> Random</label>
+              <label style="font-size:11px;"><input type="radio" name="sketch-src" value="custom"> Custom</label>
+            </div>
+            <textarea id="sketch-custom" placeholder="Custom prompts, comma-separated (e.g. dog, sun, pizza)" maxlength="600" rows="2" class="win-input" style="display:none;resize:vertical;font-family:inherit;font-size:12px;"></textarea>
+            <div style="display:flex;gap:6px;">
+              <button id="btn-sketch-create" class="win-btn" style="background:var(--accent);color:#fff;flex:1;">Create Room</button>
+              <button id="btn-sketch-list" class="win-btn" style="background:var(--bg-elevated);color:var(--text-primary);flex:1;">Find Room</button>
+            </div>
+            <div id="sketch-rooms" style="display:none;flex-direction:column;gap:4px;font-size:12px;"></div>
+            <div id="sketch-msg" style="font-size:11px;min-height:14px;color:var(--text-muted);"></div>
           </div>
         </details>
 
@@ -917,10 +1085,14 @@
     <div style="font-weight:700;font-size:14px;color:var(--text-primary);">Flashback - up to last 24 hours</div>
     <button id="btn-timelapse-close" class="win-btn" style="background:var(--bg-elevated);">Close</button>
   </div>
-  <canvas id="timelapse-canvas" style="background:#000;max-width:100%;max-height:60vh;image-rendering:pixelated;border-radius:var(--radius-sm);"></canvas>
-  <div style="display:flex;align-items:center;gap:8px;width:100%;max-width:900px;margin-top:10px;">
+  <div id="timelapse-canvas-wrap" style="overflow:auto;max-width:100%;max-height:60vh;background:#000;border-radius:var(--radius-sm);cursor:grab;position:relative;">
+    <div id="timelapse-canvas-inner" style="min-width:100%;min-height:100%;display:flex;justify-content:center;align-items:center;">
+      <canvas id="timelapse-canvas" style="background:#000;image-rendering:pixelated;display:block;flex-shrink:0;"></canvas>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;width:100%;max-width:900px;margin-top:10px;flex-wrap:wrap;">
     <button id="btn-timelapse-play" class="win-btn" style="background:var(--accent);color:#fff;">Play</button>
-    <input type="range" id="timelapse-scrubber" min="0" max="100" value="0" style="flex:1;accent-color:var(--accent);">
+    <input type="range" id="timelapse-scrubber" min="0" max="100" value="0" style="flex:1;min-width:120px;accent-color:var(--accent);">
     <select id="timelapse-speed" class="win-input" style="width:auto;padding:4px 6px;font-size:11px;">
       <option value="1">1x</option>
       <option value="5">5x</option>
@@ -928,6 +1100,11 @@
       <option value="100">100x</option>
       <option value="500">500x</option>
     </select>
+    <div style="display:flex;align-items:center;gap:4px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px 6px;">
+      <button id="btn-timelapse-zoom-out" class="win-btn" style="font-size:14px;padding:0 6px;background:transparent;border:none;color:var(--text-primary);">−</button>
+      <span id="timelapse-zoom-label" style="font-size:11px;color:var(--text-muted);min-width:40px;text-align:center;">100%</span>
+      <button id="btn-timelapse-zoom-in" class="win-btn" style="font-size:14px;padding:0 6px;background:transparent;border:none;color:var(--text-primary);">+</button>
+    </div>
   </div>
   <div id="timelapse-info" style="margin-top:6px;font-size:11px;color:var(--text-muted);width:100%;max-width:900px;text-align:center;">Loading...</div>
 </div>
@@ -966,12 +1143,11 @@
     <input id="auth-user" class="win-input" type="text" placeholder="Username (3-20 letters/numbers)" maxlength="20" autocomplete="username">
     <input id="auth-pass" class="win-input" type="password" placeholder="Password (min 4 characters)" maxlength="64" autocomplete="current-password">
     <div id="captcha-row" style="display:none;flex-direction:column;gap:6px;margin-bottom:4px;">
-      <div style="font-size:11px;color:var(--text-secondary);">Type the letters you see below (5 letters, not case-sensitive):</div>
-      <div style="display:flex;gap:4px;align-items:center;">
-        <img id="captcha-img" src="" alt="captcha" style="height:50px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;">
-        <button id="captcha-refresh" class="win-btn" title="New captcha" style="padding:4px 8px;font-size:14px;">&#x21bb;</button>
-      </div>
-      <input id="captcha-ans" class="win-input" type="text" placeholder="Type captcha here" maxlength="5" autocomplete="off" autocapitalize="characters" style="letter-spacing:3px;text-align:center;font-size:15px;">
+      <label id="notrobot-box" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #d0d0d0;border-radius:6px;cursor:pointer;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,0.08);">
+        <input type="checkbox" id="notrobot-check" style="width:22px;height:22px;cursor:pointer;flex-shrink:0;accent-color:#22c55e;">
+        <span style="color:#333;font-size:13px;font-weight:500;">I'm not a robot</span>
+        <span style="margin-left:auto;font-size:9px;color:#888;text-align:right;line-height:1.2;">EzPlace<br>Privacy - Terms</span>
+      </label>
     </div>
     <button id="btn-auth-submit" class="win-btn" style="width:100%;padding:10px;font-size:14px;font-weight:700;margin-top:4px;">Log In</button>
     <div id="auth-error">&nbsp;</div>
@@ -981,9 +1157,19 @@
   </div>
   <div id="user-bar">
     <span class="user-name" id="user-display"></span>
-    <span id="pb-balance" title="PlaceBucks - earn 1 per 100 pixels placed" style="font-size:11px;font-weight:700;color:var(--gold);background:rgba(240,178,50,0.12);border:1px solid var(--gold);padding:2px 6px;border-radius:10px;">PLACEBUX: 0</span>
-    <button id="btn-shop" class="win-btn" style="font-size:11px;padding:4px 10px;background:var(--gold);color:#000;font-weight:700;">Shop</button>
-    <button id="btn-logout" class="win-btn">Logout</button>
+    <span style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto;">
+      <span id="pb-balance" title="PlaceBucks - earn 1 per 100 pixels placed" style="font-size:11px;font-weight:700;color:var(--gold);background:rgba(240,178,50,0.12);border:1px solid var(--gold);padding:2px 6px;border-radius:10px;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;">PB: 0</span>
+      <button id="btn-logout" class="win-btn" style="flex-shrink:0;">Logout</button>
+    </span>
+  </div>
+  <div id="user-bar-row2" style="display:none;padding:4px 12px 8px;border-bottom:1px solid var(--border);background:var(--bg-tertiary);align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+    <span style="position:relative;display:inline-flex;align-items:center;flex-shrink:0;">
+      <button id="btn-movies" class="win-btn" title="Watch movies" style="font-size:11px;padding:4px 10px;background:#7c5cfc;color:#fff;font-weight:700;display:inline-flex;align-items:center;white-space:nowrap;">🎬 Movies</button>
+      <div id="movies-tutorial-arrow" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#7c5cfc;color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(124,92,252,0.5);z-index:55;cursor:pointer;white-space:nowrap;animation:movieArrowBob 1.2s ease-in-out infinite alternate;">↑ Watch movies here <span style="opacity:0.8;font-weight:400;font-size:10px;">(click to dismiss)</span></div>
+    </span>
+    <button id="btn-shop" class="win-btn" style="font-size:11px;padding:4px 10px;background:var(--gold);color:#000;font-weight:700;flex-shrink:0;white-space:nowrap;">Shop</button>
+    <button id="btn-account-settings" class="win-btn" title="Account settings" style="font-size:11px;padding:4px 10px;flex-shrink:0;white-space:nowrap;">Settings</button>
+    <button id="btn-report" class="win-btn" title="Report inappropriate drawings" style="font-size:11px;padding:4px 10px;background:#d32f2f;color:#fff;font-weight:700;flex-shrink:0;white-space:nowrap;">⚠ Report</button>
   </div>
   <div id="guest-bar">
     <span class="guest-name" id="guest-display"></span>
@@ -1073,6 +1259,12 @@
         <button class="win-btn" id="btn-mod-unban" style="background:#22c55e;color:#fff;font-weight:700;">Unban</button>
       </div>
       <div id="mod-status" style="font-size:11px;color:#666;min-height:14px;">School Ban: account banned + redirect (no IP/device, so other people on the same WiFi keep working).<br>Regular Ban: account + IP + device + redirect. Unban: reverses both.</div>
+      <h4 style="color:#d32f2f;margin-top:12px;">Reports Queue</h4>
+      <div class="admin-row">
+        <button class="win-btn" id="btn-mod-reports-refresh" style="background:var(--accent);color:#fff;">Load Reports</button>
+        <label style="font-size:11px;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="mod-reports-show-handled"> Show handled</label>
+      </div>
+      <div id="mod-reports-list" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;font-size:11px;"></div>
     </div>
   </div>
 
@@ -1131,6 +1323,13 @@
         <input id="admin-del-input" class="win-input" type="text" placeholder="Username">
         <button class="win-btn" id="btn-admin-del-account" style="background:#d32f2f">Delete Account</button>
       </div>
+      <h4>Reset Password</h4>
+      <div class="admin-row">
+        <input id="admin-rpw-user" class="win-input" type="text" placeholder="Username">
+        <input id="admin-rpw-new" class="win-input" type="text" placeholder="New password (4+ chars)">
+        <button class="win-btn" id="btn-admin-reset-pw" style="background:var(--accent);color:#fff;">Reset</button>
+      </div>
+      <div id="admin-rpw-status" style="font-size:11px;color:var(--text-muted);min-height:14px;margin:2px 0;"></div>
       <h4>Switch User</h4>
       <div class="admin-row">
         <input id="admin-switch-input" class="win-input" type="text" placeholder="Username">
@@ -1299,6 +1498,20 @@ const safeStore = (function () {
     };
   }
 })();
+
+// ============================================================
+// MOVIES CONFIG - drop your Google Drive share links (or raw file IDs) into the `src` field.
+// Share URL format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+// The code will auto-extract the file ID and build the /preview embed URL.
+// You can also pass just "FILE_ID" directly if you prefer.
+// ============================================================
+const MOVIES = [
+  { title: "A Minecraft Movie", src: "1Hd98_27UNxYQvvqqOjmHC_25S6VG8UG9" },
+  { title: "Michael Jackson Movie", src: "1CWpY2A2nEoNo0YZ8XpCPo5YYlA-m5x_r" },
+  { title: "FNAF 2 Movie", src: "1DR8vuiCDiBosdZCywL8hB-Q5I-5tg8yv" },
+  { title: "Backrooms Movie", src: "18nLws3FusSwXgQxTmAv-JmQijlCytXzD" },
+  { title: "More coming soon...", comingSoon: true },
+];
 
 const TIPS = [
   "DID YOU KNOW? You can create clans, you can join them and create them on the homepage.",
@@ -1844,7 +2057,7 @@ async function openTimelapse() {
   }
   const t0 = events.getUint32(0, true);
   const tEnd = events.getUint32((count - 1) * TL_EVENT_SIZE, true);
-  tlState = { events, count, startGrid, w, h, t0, tEnd, idx: 0, playing: false, speed: parseFloat(document.getElementById('timelapse-speed').value) };
+  tlState = { events, count, startGrid, w, h, t0, tEnd, idx: 0, playing: false, speed: parseFloat(document.getElementById('timelapse-speed').value), zoom: 1, playStartTs: null };
   const tlCvs = document.getElementById('timelapse-canvas');
   tlCvs.width = w; tlCvs.height = h;
   const tlCtx = tlCvs.getContext('2d');
@@ -1859,7 +2072,81 @@ async function openTimelapse() {
   tlCtx.putImageData(imageData, 0, 0);
   document.getElementById('timelapse-scrubber').value = 0;
   updateTimelapseInfo();
+  requestAnimationFrame(() => applyTimelapseZoom());
 }
+
+function applyTimelapseZoom(anchor) {
+  if (!tlState) return;
+  const cvs = document.getElementById('timelapse-canvas');
+  const wrap = document.getElementById('timelapse-canvas-wrap');
+  const inner = document.getElementById('timelapse-canvas-inner');
+  if (!cvs || !wrap || !inner) return;
+  const wrapW = wrap.clientWidth || 900;
+  const wrapH = Math.min(window.innerHeight * 0.6, 800);
+  const baseFit = Math.max(1, Math.min(wrapW / tlState.w, wrapH / tlState.h));
+  const prevW = cvs.clientWidth || (tlState.w * baseFit);
+  const prevH = cvs.clientHeight || (tlState.h * baseFit);
+  const zoomedW = Math.max(1, Math.round(tlState.w * baseFit * tlState.zoom));
+  const zoomedH = Math.max(1, Math.round(tlState.h * baseFit * tlState.zoom));
+  const preservedContentX = anchor ? (wrap.scrollLeft + anchor.wrapX) / Math.max(1, prevW) : null;
+  const preservedContentY = anchor ? (wrap.scrollTop + anchor.wrapY) / Math.max(1, prevH) : null;
+  cvs.style.width = zoomedW + 'px';
+  cvs.style.height = zoomedH + 'px';
+  inner.style.justifyContent = zoomedW <= wrapW ? 'center' : 'flex-start';
+  inner.style.alignItems = zoomedH <= wrapH ? 'center' : 'flex-start';
+  if (anchor && preservedContentX !== null) {
+    wrap.scrollLeft = Math.max(0, preservedContentX * zoomedW - anchor.wrapX);
+    wrap.scrollTop = Math.max(0, preservedContentY * zoomedH - anchor.wrapY);
+  }
+  const lbl = document.getElementById('timelapse-zoom-label');
+  if (lbl) lbl.textContent = Math.round(tlState.zoom * 100) + '%';
+}
+(function wireTimelapseZoom() {
+  const btnIn = document.getElementById('btn-timelapse-zoom-in');
+  const btnOut = document.getElementById('btn-timelapse-zoom-out');
+  const wrap = document.getElementById('timelapse-canvas-wrap');
+  const centerAnchor = () => wrap ? { wrapX: wrap.clientWidth / 2, wrapY: wrap.clientHeight / 2 } : null;
+  if (btnIn) btnIn.onclick = () => { if (tlState) { tlState.zoom = Math.min(16, tlState.zoom * 1.5); applyTimelapseZoom(centerAnchor()); } };
+  if (btnOut) btnOut.onclick = () => { if (tlState) { tlState.zoom = Math.max(0.25, tlState.zoom / 1.5); applyTimelapseZoom(centerAnchor()); } };
+  if (wrap) wrap.addEventListener('wheel', e => {
+    if (!tlState) return;
+    e.preventDefault();
+    const r = wrap.getBoundingClientRect();
+    const anchor = { wrapX: e.clientX - r.left, wrapY: e.clientY - r.top };
+    const factor = e.deltaY < 0 ? 1.2 : (1 / 1.2);
+    tlState.zoom = Math.max(0.25, Math.min(16, tlState.zoom * factor));
+    applyTimelapseZoom(anchor);
+  }, { passive: false });
+  if (wrap) {
+    let panning = false, panLastX = 0, panLastY = 0, activePointer = null;
+    const isInteractive = e => {
+      const t = e.target;
+      return t && (t.tagName === 'BUTTON' || t.tagName === 'INPUT' || t.tagName === 'SELECT');
+    };
+    wrap.addEventListener('pointerdown', e => {
+      if (!tlState || isInteractive(e)) return;
+      panning = true; activePointer = e.pointerId;
+      panLastX = e.clientX; panLastY = e.clientY;
+      wrap.style.cursor = 'grabbing';
+      try { wrap.setPointerCapture(e.pointerId); } catch {}
+    });
+    wrap.addEventListener('pointermove', e => {
+      if (!panning || e.pointerId !== activePointer) return;
+      const dx = e.clientX - panLastX; const dy = e.clientY - panLastY;
+      panLastX = e.clientX; panLastY = e.clientY;
+      wrap.scrollLeft -= dx; wrap.scrollTop -= dy;
+    });
+    const endPan = e => {
+      if (!panning || (activePointer !== null && e.pointerId !== activePointer)) return;
+      panning = false; activePointer = null;
+      wrap.style.cursor = 'grab';
+      try { wrap.releasePointerCapture(e.pointerId); } catch {}
+    };
+    wrap.addEventListener('pointerup', endPan);
+    wrap.addEventListener('pointercancel', endPan);
+    wrap.addEventListener('pointerleave', endPan);
+  }
+})();
 
 function updateTimelapseInfo() {
   if (!tlState) return;
@@ -1895,18 +2182,26 @@ function rebuildToIndex(targetIdx) {
   updateTimelapseInfo();
 }
 
-function tlTick() {
+function tlTick(now) {
   if (!tlState || !tlState.playing) { tlAnimFrame = null; return; }
-  const stepsPerFrame = Math.max(1, Math.floor(tlState.speed));
-  for (let i = 0; i < stepsPerFrame && tlState.idx < tlState.count; i++) {
+  now = now || performance.now();
+  if (tlState.playStartTs == null) { tlState.playStartTs = now; tlState.playStartIdx = tlState.idx; tlState.lastInfoTs = 0; }
+  const elapsedMs = now - tlState.playStartTs;
+  const eventsPerMs = tlState.speed / 16.67;
+  const targetIdx = Math.min(tlState.count, tlState.playStartIdx + Math.floor(elapsedMs * eventsPerMs));
+  const maxPerFrame = Math.max(1, Math.floor(tlState.speed * 4));
+  const endIdx = Math.min(targetIdx, tlState.idx + maxPerFrame);
+  while (tlState.idx < endIdx) {
     applyEventTo(tlState.idx, tlState.imageData, tlState.w);
     tlState.idx++;
   }
   tlState.tlCtx.putImageData(tlState.imageData, 0, 0);
-  document.getElementById('timelapse-scrubber').value = (tlState.idx / tlState.count) * 100;
-  updateTimelapseInfo();
+  if (!tlState.scrubberEl) tlState.scrubberEl = document.getElementById('timelapse-scrubber');
+  if (tlState.scrubberEl) tlState.scrubberEl.value = (tlState.idx / tlState.count) * 100;
+  if (now - tlState.lastInfoTs > 150) { updateTimelapseInfo(); tlState.lastInfoTs = now; }
   if (tlState.idx >= tlState.count) {
     tlState.playing = false;
+    tlState.playStartTs = null;
     document.getElementById('btn-timelapse-play').textContent = 'Play';
   }
   tlAnimFrame = requestAnimationFrame(tlTick);
@@ -1923,6 +2218,7 @@ document.getElementById('btn-timelapse-play').onclick = () => {
   if (!tlState) return;
   if (tlState.idx >= tlState.count) rebuildToIndex(0);
   tlState.playing = !tlState.playing;
+  tlState.playStartTs = null;
   document.getElementById('btn-timelapse-play').textContent = tlState.playing ? 'Pause' : 'Play';
   if (tlState.playing && !tlAnimFrame) tlAnimFrame = requestAnimationFrame(tlTick);
 };
@@ -1930,9 +2226,10 @@ document.getElementById('timelapse-scrubber').oninput = (e) => {
   if (!tlState) return;
   const target = Math.floor((parseFloat(e.target.value) / 100) * tlState.count);
   rebuildToIndex(target);
+  tlState.playStartTs = null;
 };
 document.getElementById('timelapse-speed').onchange = (e) => {
-  if (tlState) tlState.speed = parseFloat(e.target.value);
+  if (tlState) { tlState.speed = parseFloat(e.target.value); tlState.playStartTs = null; }
 };
 
 function updateCursor(sx, sy) {
@@ -2051,7 +2348,16 @@ function getTouchDist(t1, t2) {
   return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
 }
 
-function updateModeBtnVisibility() {} // no-op kept so existing callers don't error
+function updateModeBtnVisibility() {
+  const btn = document.getElementById('mobile-pan-toggle');
+  if (!btn) return;
+  btn.style.display = canDragPaint() ? '' : 'none';
+  if (!canDragPaint() && forcePanMode) {
+    forcePanMode = false;
+    btn.textContent = 'Draw';
+    btn.classList.remove('pan');
+  }
+}
 
 let pendingTouchPaintTimer = null;
 function cancelPendingTouchPaint() {
@@ -2562,7 +2868,7 @@ function showMobileChatBubble(name, text, isOwner, isMsgGuest) {
   }, MOBILE_BUBBLE_DURATION);
 }
 
-function addMsg(name, text, isOwner, isMsgGuest, isMsgVip, rank, clan, replyTo) {
+function addMsg(name, text, isOwner, isMsgGuest, isMsgVip, rank, clan, replyTo, nameColor) {
   const d = document.createElement('div'); d.className = 'msg';
   const isTP = name.toLowerCase() === 'toothpaste';
   const crown = isOwner ? '<span class="crown">&#x1F451;</span>' : '';
@@ -2590,6 +2896,12 @@ function addMsg(name, text, isOwner, isMsgGuest, isMsgVip, rank, clan, replyTo) 
   } else if (isMsgVip && !isTP) {
     rankBadge = '<span class="vip-badge">[VIP]</span>';
     nameClass = 'name vip';
+  }
+  if (nameColor && /^#[0-9a-fA-F]{3,8}$/.test(nameColor) && !isTP && !(rank && (rank.color === 'rainbow' || rank.color === 'mod'))) {
+    const colorIdx = styleParts.findIndex(s => s.startsWith('color:'));
+    if (colorIdx >= 0) styleParts.splice(colorIdx, 1);
+    styleParts.push(`color:${nameColor}`, 'font-weight:700');
+    if (nameClass === 'name owner' || nameClass === 'name guest' || nameClass === 'name vip') nameClass = 'name';
   }
   const canModerate = !isGuest && username && name.toLowerCase() !== username.toLowerCase() && (
     (currentLobbyOwner && currentLobbyOwner.toLowerCase() === username.toLowerCase()) ||
@@ -2624,7 +2936,7 @@ function addMsg(name, text, isOwner, isMsgGuest, isMsgVip, rank, clan, replyTo) 
     replyHtml = `<div class="reply-quote" style="border-left:3px solid var(--accent);padding:1px 6px;margin:0 0 2px 0;font-size:11px;color:var(--text-muted);background:var(--accent-dim);border-radius:3px;"><b>${esc(replyTo.from)}</b>: ${esc(replyTo.text.slice(0,120))}</div>`;
   }
   const replyBtn = `<span class="reply-btn" title="Reply" style="cursor:pointer;color:var(--text-muted);font-size:11px;margin-right:4px;">&#x21A9;</span>`;
-  d.innerHTML = `${replyHtml}<span class="timestamp">${timeStr()}</span>${replyBtn}${crown}${clanBadge}${rankBadge}<span class="${nameClass}" data-user="${esc(name)}"${styleAttr}>${esc(name)}:</span> ${bodyHtml}`;
+  d.innerHTML = `${replyHtml}<span class="timestamp">${timeStr()}</span>${replyBtn}${avatarImg(name)}${crown}${clanBadge}${rankBadge}<span class="${nameClass}" data-user="${esc(name)}"${styleAttr}>${esc(name)}:</span> ${bodyHtml}`;
   if (canModerate) {
     d.querySelector('.name').addEventListener('click', e => showLobbyUserMenu(e, name));
   }
@@ -2633,6 +2945,15 @@ function addMsg(name, text, isOwner, isMsgGuest, isMsgVip, rank, clan, replyTo) 
 }
 function addSystemMsg(text) { const d = document.createElement('div'); d.className = 'msg system'; d.innerHTML = `<span class="timestamp">${timeStr()}</span>${esc(text)}`; messagesEl.appendChild(d); messagesEl.scrollTop = messagesEl.scrollHeight; }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="%23a5a5a5"/><circle cx="32" cy="26" r="12" fill="%23f0f0f0"/><ellipse cx="32" cy="56" rx="18" ry="12" fill="%23f0f0f0"/></svg>'.replace(/%23/g, '#'));
+let _avatarBust = Date.now();
+function avatarUrl(user) {
+  if (!user) return DEFAULT_AVATAR;
+  return BACKEND + '/api/avatar?user=' + encodeURIComponent(String(user).toLowerCase()) + '&v=' + _avatarBust;
+}
+function avatarImg(user, cls) {
+  return '<img class="ez-avatar' + (cls ? ' ' + cls : '') + '" src="' + avatarUrl(user) + '" onerror="this.onerror=null;this.src=DEFAULT_AVATAR" alt="">';
+}
 function linkify(escapedHtml) {
   return escapedHtml.replace(/\bhttps?:\/\/[^\s<>"'`]+/gi, (m) => {
     let trail = '';
@@ -2885,8 +3206,6 @@ const userBar = document.getElementById('user-bar');
 const authUser = document.getElementById('auth-user');
 const authPass = document.getElementById('auth-pass');
 const captchaRow = document.getElementById('captcha-row');
-const captchaImg = document.getElementById('captcha-img');
-const captchaAns = document.getElementById('captcha-ans');
 const authError = document.getElementById('auth-error');
 function ezpReadBanFlag() {
   try { if (window.localStorage && window.localStorage.getItem('ezp_school_banned') === '1') return true; } catch {}
@@ -2909,10 +3228,7 @@ if (!deviceId) {
 let captchaId = '';
 let isRegisterMode = false;
 
-async function fetchCaptcha() {
-  try { const res = await fetch('/api/captcha'); const data = await res.json(); captchaId = data.id; captchaImg.src = data.image; captchaAns.value = ''; }
-  catch { captchaImg.alt = 'Server offline'; }
-}
+async function fetchCaptcha() { const cb = document.getElementById('notrobot-check'); if (cb) cb.checked = false; }
 
 function setAuthMode(register) {
   isRegisterMode = register;
@@ -2955,19 +3271,21 @@ document.getElementById('btn-play-guest').onclick = () => {
   addSystemMsg('Pick any public lobby to join as a guest.');
 };
 
+const AUTH_PAGE_LOAD_TS = Date.now();
 async function doAuth(endpoint, needCaptcha) {
   const u = authUser.value.trim(), p = authPass.value;
   if (!u || !p) { authError.textContent = 'Enter username and password'; return; }
   const body = { username: u, password: p };
   if (needCaptcha) {
-    const ca = captchaAns.value.trim();
-    if (!ca) { authError.textContent = 'Solve the captcha'; return; }
-    body.captcha_id = captchaId; body.captcha_answer = ca;
+    const notRobot = document.getElementById('notrobot-check');
+    if (!notRobot || !notRobot.checked) { authError.textContent = "Please check the \"I'm not a robot\" box"; return; }
+    body.not_robot = true;
+    body.time_on_page = Date.now() - AUTH_PAGE_LOAD_TS;
   }
   try {
     const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json();
-    if (data.error) { authError.textContent = data.error; if (needCaptcha) fetchCaptcha(); return; }
+    if (data.error) { authError.textContent = data.error; return; }
     authToken = data.token; username = data.username;
     safeStore.setItem('ezplace_token', authToken); safeStore.setItem('ezplace_user', username);
     showLoggedIn(); loadLobbies();
@@ -2976,6 +3294,7 @@ async function doAuth(endpoint, needCaptcha) {
 
 function showLoggedIn() {
   authPanel.style.display = 'none'; userBar.style.display = 'flex';
+  const ub2 = document.getElementById('user-bar-row2'); if (ub2) ub2.style.display = 'flex';
   document.getElementById('user-display').textContent = username;
   chatInput.disabled = false; chatBtn.disabled = false; authError.innerHTML = '&nbsp;';
   if (username.toLowerCase() === 'toothpaste') { document.getElementById('admin-tab-btn').style.display = 'block'; document.getElementById('fake-admin-section').style.display = ''; }
@@ -2985,29 +3304,39 @@ function showLoggedIn() {
 
 let myBalance = 0;
 let myPurchases = {};
+let myNameColor = null;
 let myUnlimited = false;
 let myStreak = 0;
 let myStreakProgress = { seconds: 0, required: 900, earned_today: false };
 function fmtMMSS(s) { const m = Math.floor(s / 60), sec = s % 60; return m + ':' + String(sec).padStart(2, '0'); }
+function fmtRelTime(unixSec) {
+  if (!unixSec) return 'never';
+  const diff = Math.max(0, Math.floor(Date.now()/1000 - unixSec));
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  if (diff < 86400*30) return Math.floor(diff/86400) + 'd ago';
+  const d = new Date(unixSec * 1000);
+  return d.toLocaleDateString();
+}
 function applyPbState() {
   const el = document.getElementById('pb-balance');
   if (el) {
-    const base = myUnlimited ? 'PLACEBUX: ∞' : ('PLACEBUX: ' + myBalance);
+    const balStr = myUnlimited ? '∞' : (myBalance >= 100000 ? fmtCompact(myBalance) : String(myBalance));
     let suf = '';
-    if (myStreak > 0 || myStreakProgress.seconds > 0) {
-      if (myStreakProgress.earned_today) suf = '  🔥 ' + myStreak;
-      else suf = '  🔥 ' + myStreak + ' (' + fmtMMSS(myStreakProgress.seconds) + '/' + fmtMMSS(myStreakProgress.required) + ')';
-    }
-    el.textContent = base + suf;
-    let tip = 'PlaceBucks - earn 1 per 100 pixels placed';
+    if (myStreak > 0) suf = ' 🔥' + myStreak;
+    el.textContent = 'PB: ' + balStr + suf;
+    let tip = 'PlaceBucks: ' + (myUnlimited ? 'unlimited' : myBalance.toLocaleString()) + ' - earn 1 per 100 pixels placed';
     if (myStreak > 0) tip += ' - streak: ' + myStreak + ' day' + (myStreak === 1 ? '' : 's');
-    if (!myStreakProgress.earned_today) tip += ' - spend ' + Math.ceil((myStreakProgress.required - myStreakProgress.seconds) / 60) + ' more min on this tab to claim today';
+    if (!myStreakProgress.earned_today && myStreakProgress.required) tip += ' - spend ' + Math.ceil((myStreakProgress.required - myStreakProgress.seconds) / 60) + ' more min on this tab to claim today (' + fmtMMSS(myStreakProgress.seconds) + '/' + fmtMMSS(myStreakProgress.required) + ')';
     el.title = tip;
   }
   const sb = document.getElementById('shop-balance');
   if (sb) sb.textContent = (myUnlimited ? '∞' : myBalance) + (myStreak > 0 ? '  🔥 ' + myStreak : '');
   const wg = document.getElementById('wheel-group');
   if (wg) wg.style.display = (myUnlimited || myPurchases.custom_wheel) ? 'flex' : 'none';
+  const ud = document.getElementById('user-display');
+  if (ud) ud.style.color = (myNameColor && /^#[0-9a-fA-F]{3,8}$/.test(myNameColor)) ? myNameColor : '';
 }
 async function refreshMe() {
   if (!authToken) return;
@@ -3028,7 +3357,18 @@ async function refreshMe() {
     if (d.error) return;
     myBalance = d.balance || 0;
     myPurchases = d.purchases || {};
+    myNameColor = d.name_color || null;
     myUnlimited = !!d.unlimited;
+    if (d.prices && d.prices.lobby) {
+      const sel = document.getElementById('create-size');
+      if (sel) sel.querySelectorAll('option').forEach(opt => {
+        const w = opt.dataset.w, h = opt.dataset.h;
+        if (!w || !h) return;
+        const key = w + 'x' + h;
+        const price = d.prices.lobby[key];
+        if (typeof price === 'number') opt.textContent = key + (price === 0 ? ' (free)' : ' (' + price + ' $)');
+      });
+    }
     myStreak = (d.streak && d.streak.count) || 0;
     if (d.streak_progress) myStreakProgress = d.streak_progress;
     const modTab = document.getElementById('mod-tab-btn');
@@ -3134,7 +3474,26 @@ document.querySelectorAll('#shop-modal .shop-buy').forEach(btn => {
       myBalance = d.balance || 0;
       myPurchases = d.purchases || myPurchases;
       applyPbState();
-      openShop(); // refresh button states
+      openShop();
+    } catch { msg.textContent = 'Server offline.'; msg.style.color = 'var(--red)'; }
+  };
+});
+document.querySelectorAll('#shop-modal .shop-sell').forEach(btn => {
+  btn.onclick = async () => {
+    const item = btn.dataset.item;
+    const msg = document.getElementById('shop-msg');
+    const have = parseInt(myPurchases[item]) || 0;
+    if (have <= 0) { msg.textContent = "You don't have any to sell."; msg.style.color = 'var(--red)'; return; }
+    msg.textContent = 'Selling...'; msg.style.color = 'var(--text-muted)';
+    try {
+      const r = await fetch(BACKEND + '/api/shop/sell', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ item }) });
+      const d = await r.json();
+      if (d.error) { msg.textContent = d.error; msg.style.color = 'var(--red)'; return; }
+      msg.textContent = 'Sold for ' + (d.refund || 0) + ' $!'; msg.style.color = '#22c55e';
+      myBalance = d.balance || 0;
+      myPurchases = d.purchases || myPurchases;
+      applyPbState();
+      openShop();
     } catch { msg.textContent = 'Server offline.'; msg.style.color = 'var(--red)'; }
   };
 });
@@ -3177,6 +3536,44 @@ document.querySelectorAll('#shop-modal .shop-buy').forEach(btn => {
     btn.disabled = false;
     btn.style.background = 'var(--accent)';
     btn.style.color = '#fff';
+    refreshPreview();
+  };
+})();
+
+(function setupNameColorUI() {
+  const colorEl = document.getElementById('name-color-picker');
+  const preview = document.getElementById('name-color-preview');
+  const btn = document.getElementById('btn-buy-name-color');
+  if (!colorEl || !preview || !btn) return;
+  function refreshPreview() {
+    preview.textContent = (username || 'PREVIEW');
+    preview.style.color = colorEl.value;
+  }
+  colorEl.addEventListener('input', refreshPreview);
+  btn.onclick = async () => {
+    const color = colorEl.value;
+    const msg = document.getElementById('shop-msg');
+    msg.textContent = 'Saving...'; msg.style.color = 'var(--text-muted)';
+    try {
+      const r = await fetch(BACKEND + '/api/shop/buy', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ item: 'name_color', color }) });
+      const d = await r.json();
+      if (d.error) { msg.textContent = d.error; msg.style.color = 'var(--red)'; return; }
+      msg.textContent = myPurchases.name_color ? 'Username color updated!' : 'Username color unlocked!'; msg.style.color = '#22c55e';
+      myBalance = d.balance || 0;
+      myPurchases = d.purchases || myPurchases;
+      myNameColor = d.name_color || color;
+      applyPbState();
+      openShop();
+    } catch { msg.textContent = 'Server offline.'; msg.style.color = 'var(--red)'; }
+  };
+  const origOpen = openShop;
+  openShop = function() {
+    origOpen();
+    btn.textContent = (myUnlimited || myPurchases.name_color) ? 'Save' : '30 $';
+    btn.disabled = false;
+    btn.style.background = 'var(--accent)';
+    btn.style.color = '#fff';
+    if (myNameColor) colorEl.value = myNameColor;
     refreshPreview();
   };
 })();
@@ -4060,9 +4457,10 @@ document.getElementById('btn-battle-create').onclick = async () => {
   if (!authToken) { battleMsg('Log in first.', 'var(--red)'); return; }
   const bet = parseInt(document.getElementById('battle-bet').value) || 0;
   const draw_seconds = parseInt(document.getElementById('battle-secs').value) || 90;
+  const theme = document.getElementById('battle-theme').value.trim().slice(0, 60);
   battleMsg('Creating room...');
   try {
-    const r = await fetch(BACKEND + '/api/battle/create', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ bet, draw_seconds }) });
+    const r = await fetch(BACKEND + '/api/battle/create', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ bet, draw_seconds, theme }) });
     const d = await r.json();
     if (d.error) { battleMsg(d.error, 'var(--red)'); return; }
     battleMsg('');
@@ -4101,6 +4499,263 @@ document.getElementById('btn-battle-leave').onclick = async () => {
   }
   battleCloseModal();
 };
+
+let sketchRoomId = null;
+let sketchState = null;
+let sketchPollTimer = null;
+let sketchStrokeIdx = 0;
+let sketchStrokesEpoch = -1;
+let sketchSelectedColor = 24;
+let sketchPendingStrokes = [];
+let sketchLocalGrid = new Uint8Array(64 * 64);
+function sketchMsg(t, c) { const m = document.getElementById('sketch-msg'); if (m) { m.textContent = t || ''; m.style.color = c || 'var(--text-muted)'; } }
+document.querySelectorAll('input[name="sketch-src"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('sketch-custom').style.display = r.value === 'custom' && r.checked ? '' : 'none';
+  });
+});
+async function sketchApiJoin(rid) {
+  const r = await fetch(BACKEND + '/api/sketch/join', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ room_id: rid }) });
+  return r.json();
+}
+async function sketchOpenAndPoll(rid, initialState) {
+  sketchRoomId = rid;
+  sketchStrokeIdx = 0;
+  sketchStrokesEpoch = -1;
+  sketchLocalGrid = new Uint8Array(64 * 64);
+  document.getElementById('sketch-modal').style.display = 'flex';
+  document.getElementById('sketch-room-code').textContent = 'Code: ' + rid;
+  if (initialState) sketchRender(initialState);
+  if (sketchPollTimer) clearInterval(sketchPollTimer);
+  sketchPollTimer = setInterval(sketchPoll, 800);
+  sketchPoll();
+}
+async function sketchPoll() {
+  if (!sketchRoomId) return;
+  try {
+    const r = await fetch(BACKEND + '/api/sketch/state?room_id=' + encodeURIComponent(sketchRoomId) + '&since=' + sketchStrokeIdx + '&epoch=' + sketchStrokesEpoch, { headers: { Authorization: authToken } });
+    const d = await r.json();
+    if (d.error) { if (d.error === 'Room not found' || d.error === 'Not in room') sketchClose(); return; }
+    sketchRender(d.state);
+  } catch {}
+}
+function sketchClose() {
+  if (sketchPollTimer) { clearInterval(sketchPollTimer); sketchPollTimer = null; }
+  document.getElementById('sketch-modal').style.display = 'none';
+  sketchRoomId = null; sketchState = null; sketchPendingStrokes = [];
+}
+document.getElementById('btn-sketch-close').onclick = async () => {
+  if (sketchRoomId) { try { await fetch(BACKEND + '/api/sketch/leave', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ room_id: sketchRoomId }) }); } catch {} }
+  sketchClose();
+};
+document.getElementById('btn-sketch-create').onclick = async () => {
+  if (!authToken) { sketchMsg('Log in first.', 'var(--red)'); return; }
+  const src = document.querySelector('input[name="sketch-src"]:checked').value;
+  const body = { prompt_source: src };
+  if (src === 'custom') body.custom_prompts = document.getElementById('sketch-custom').value;
+  sketchMsg('Creating room...');
+  try {
+    const r = await fetch(BACKEND + '/api/sketch/create', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify(body) });
+    const d = await r.json();
+    if (d.error) { sketchMsg(d.error, 'var(--red)'); return; }
+    sketchMsg('');
+    sketchOpenAndPoll(d.room_id, d.state);
+  } catch { sketchMsg('Server offline.', 'var(--red)'); }
+};
+document.getElementById('btn-sketch-list').onclick = async () => {
+  const list = document.getElementById('sketch-rooms');
+  list.style.display = 'flex'; list.innerHTML = 'Loading...';
+  try {
+    const r = await fetch(BACKEND + '/api/sketch/list'); const d = await r.json();
+    list.innerHTML = '';
+    if (!d.rooms || !d.rooms.length) { list.innerHTML = '<div style="color:var(--text-muted);">No open rooms.</div>'; return; }
+    d.rooms.forEach(rm => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:4px 6px;background:var(--bg-elevated);border-radius:3px;';
+      row.innerHTML = `<span><b>${esc(rm.host)}</b> · ${rm.players} player${rm.players===1?'':'s'} · ${esc(rm.prompt_source)}</span><button class="win-btn" style="font-size:10px;padding:2px 6px;background:var(--accent);color:#fff;">Join</button>`;
+      row.querySelector('button').onclick = async () => {
+        const d2 = await sketchApiJoin(rm.id);
+        if (d2.error) { sketchMsg(d2.error, 'var(--red)'); return; }
+        sketchOpenAndPoll(rm.id, d2.state);
+      };
+      list.appendChild(row);
+    });
+  } catch { list.innerHTML = '<span style="color:var(--red);">Failed</span>'; }
+};
+document.getElementById('btn-sketch-start').onclick = async () => {
+  if (!sketchRoomId) return;
+  try {
+    const r = await fetch(BACKEND + '/api/sketch/start', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ room_id: sketchRoomId }) });
+    const d = await r.json();
+    if (d.error) alert(d.error);
+    else sketchRender(d.state);
+  } catch {}
+};
+function sketchRender(state) {
+  sketchState = state;
+  const meLow = (username || '').toLowerCase();
+  const isDrawer = state.current_drawer && state.current_drawer.toLowerCase() === meLow;
+  const isHost = state.host && state.host.toLowerCase() === meLow;
+  const now = Math.floor(Date.now() / 1000);
+  const secLeft = Math.max(0, Math.floor((state.round_deadline || 0) - now));
+  let statusText = '';
+  if (state.phase === 'lobby') statusText = `Lobby · ${state.players.length}/8 players`;
+  else if (state.phase === 'drawing') statusText = `Round ${state.round_num} · ${isDrawer ? "You're drawing!" : state.current_drawer + ' is drawing'} · ${secLeft}s left`;
+  else if (state.phase === 'round_end') statusText = `Round over. Word was: "${state.prompt || '?'}"`;
+  else if (state.phase === 'game_end') statusText = 'Game over! Host can start a new game.';
+  document.getElementById('sketch-status-bar').textContent = statusText;
+  const promptEl = document.getElementById('sketch-prompt-display');
+  if (state.phase === 'drawing' && isDrawer) promptEl.textContent = 'Draw: ' + (state.prompt || '');
+  else if (state.phase === 'drawing') promptEl.textContent = state.prompt_blanks || '';
+  else if (state.phase === 'round_end') promptEl.textContent = 'Word was: ' + (state.prompt || '');
+  else if (state.phase === 'game_end') {
+    const winner = [...state.players].sort((a,b) => b.score - a.score)[0];
+    promptEl.textContent = winner ? `🏆 Winner: ${winner.name} (${winner.score} pts)` : 'Game over!';
+  }
+  else promptEl.textContent = '';
+  const inLobbyLike = state.phase === 'lobby' || state.phase === 'game_end';
+  document.getElementById('sketch-lobby-panel').style.display = inLobbyLike ? 'flex' : 'none';
+  document.getElementById('btn-sketch-start').style.display = inLobbyLike && isHost ? '' : 'none';
+  document.getElementById('btn-sketch-start').textContent = state.phase === 'game_end' ? 'Start New Game' : 'Start Game';
+  document.getElementById('sketch-lobby-info').textContent = inLobbyLike ? (isHost ? 'You are the host. Start when everyone is in.' : `Waiting for ${state.host} to start.`) : '';
+  document.getElementById('sketch-drawer-tools').style.display = state.phase === 'drawing' && isDrawer ? 'flex' : 'none';
+  document.getElementById('sketch-guess-row').style.display = state.phase === 'drawing' && !isDrawer ? 'flex' : 'none';
+  const playersEl = document.getElementById('sketch-players');
+  playersEl.innerHTML = '';
+  [...state.players].sort((a,b) => b.score - a.score).forEach(p => {
+    const isThisDrawer = state.current_drawer && p.name.toLowerCase() === state.current_drawer.toLowerCase();
+    const d = document.createElement('div');
+    d.style.cssText = 'display:flex;justify-content:space-between;padding:3px 6px;background:' + (p.got_current ? 'rgba(34,197,94,0.15)' : 'var(--bg-elevated)') + ';border-radius:3px;';
+    d.innerHTML = `<span>${isThisDrawer ? '✏️ ' : ''}${esc(p.name)}${p.got_current ? ' ✓' : ''}</span><span style="color:var(--gold);font-weight:700;">${p.score}</span>`;
+    playersEl.appendChild(d);
+  });
+  const gEl = document.getElementById('sketch-guesses');
+  gEl.innerHTML = '';
+  (state.guesses || []).forEach(g => {
+    const d = document.createElement('div');
+    d.style.cssText = 'padding:2px 4px;' + (g.correct ? 'color:#22c55e;font-weight:700;' : '');
+    d.innerHTML = `<b>${esc(g.user)}:</b> ${esc(g.text)}`;
+    gEl.appendChild(d);
+  });
+  gEl.scrollTop = gEl.scrollHeight;
+  const epochChanged = state.strokes_epoch !== sketchStrokesEpoch;
+  if (epochChanged) {
+    sketchLocalGrid = new Uint8Array(64 * 64);
+    sketchStrokeIdx = 0;
+    sketchStrokesEpoch = state.strokes_epoch;
+  }
+  const strokes = state.strokes || [];
+  strokes.forEach(s => {
+    if (s[0] >= 0 && s[0] < 64 && s[1] >= 0 && s[1] < 64) sketchLocalGrid[s[1] * 64 + s[0]] = s[2];
+  });
+  sketchStrokeIdx = state.last_stroke_idx;
+  sketchDrawCanvas();
+  if (!document.getElementById('sketch-palette').children.length) sketchBuildPalette();
+}
+function sketchDrawCanvas() {
+  const cvs = document.getElementById('sketch-canvas');
+  const ctx = cvs.getContext('2d');
+  const img = ctx.createImageData(64, 64);
+  for (let i = 0; i < 64 * 64; i++) {
+    const c = COLOR_BYTES[sketchLocalGrid[i]] || [255, 255, 255];
+    const o = i * 4;
+    img.data[o] = c[0]; img.data[o+1] = c[1]; img.data[o+2] = c[2]; img.data[o+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function sketchBuildPalette() {
+  const pal = document.getElementById('sketch-palette');
+  pal.innerHTML = '';
+  for (let i = 0; i < Math.min(COLORS.length, 40); i++) {
+    const b = document.createElement('button');
+    b.style.cssText = 'width:18px;height:18px;padding:0;border:2px solid ' + (i === sketchSelectedColor ? '#fff' : 'transparent') + ';background:' + COLORS[i] + ';cursor:pointer;border-radius:2px;';
+    b.onclick = () => { sketchSelectedColor = i; sketchBuildPalette(); };
+    pal.appendChild(b);
+  }
+}
+(function wireSketchCanvas(){
+  const cvs = document.getElementById('sketch-canvas');
+  let drawing = false;
+  let lastX = -1, lastY = -1;
+  let sendTimer = null;
+  const canDraw = () => sketchState && sketchState.phase === 'drawing' && sketchState.current_drawer && sketchState.current_drawer.toLowerCase() === (username || '').toLowerCase();
+  const clientToGrid = (cx, cy) => {
+    const r = cvs.getBoundingClientRect();
+    const x = Math.floor((cx - r.left) / r.width * 64);
+    const y = Math.floor((cy - r.top) / r.height * 64);
+    return { x: Math.max(0, Math.min(63, x)), y: Math.max(0, Math.min(63, y)) };
+  };
+  const paint = (x, y) => {
+    if (x < 0 || x >= 64 || y < 0 || y >= 64) return;
+    if (sketchLocalGrid[y * 64 + x] === sketchSelectedColor) return;
+    sketchLocalGrid[y * 64 + x] = sketchSelectedColor;
+    sketchPendingStrokes.push([x, y, sketchSelectedColor]);
+    sketchDrawCanvas();
+    if (!sendTimer) sendTimer = setTimeout(flushStrokes, 120);
+  };
+  const line = (x0, y0, x1, y1) => {
+    const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy, x = x0, y = y0;
+    while (true) {
+      paint(x, y);
+      if (x === x1 && y === y1) break;
+      const e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; x += sx; }
+      if (e2 < dx) { err += dx; y += sy; }
+    }
+  };
+  async function flushStrokes() {
+    sendTimer = null;
+    if (!sketchPendingStrokes.length || !sketchRoomId) return;
+    const strokes = sketchPendingStrokes.splice(0, sketchPendingStrokes.length);
+    const round_num = (sketchState && sketchState.round_num) || 0;
+    try {
+      await fetch(BACKEND + '/api/sketch/draw', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ room_id: sketchRoomId, round_num, strokes }) });
+    } catch {}
+  }
+  const onDown = e => {
+    if (!canDraw()) return;
+    e.preventDefault();
+    drawing = true;
+    const pt = e.touches ? e.touches[0] : e;
+    const g = clientToGrid(pt.clientX, pt.clientY);
+    lastX = g.x; lastY = g.y;
+    paint(g.x, g.y);
+  };
+  const onMove = e => {
+    if (!drawing) return;
+    e.preventDefault();
+    const pt = e.touches ? e.touches[0] : e;
+    const g = clientToGrid(pt.clientX, pt.clientY);
+    if (g.x === lastX && g.y === lastY) return;
+    line(lastX, lastY, g.x, g.y);
+    lastX = g.x; lastY = g.y;
+  };
+  const onUp = () => { drawing = false; lastX = -1; lastY = -1; };
+  cvs.addEventListener('mousedown', onDown);
+  cvs.addEventListener('mousemove', onMove);
+  cvs.addEventListener('mouseup', onUp);
+  cvs.addEventListener('mouseleave', onUp);
+  cvs.addEventListener('touchstart', onDown, { passive: false });
+  cvs.addEventListener('touchmove', onMove, { passive: false });
+  cvs.addEventListener('touchend', onUp);
+})();
+document.getElementById('btn-sketch-clear').onclick = async () => {
+  if (!sketchRoomId) return;
+  try { await fetch(BACKEND + '/api/sketch/clear', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ room_id: sketchRoomId }) }); } catch {}
+  sketchLocalGrid = new Uint8Array(64 * 64).fill(0);
+  sketchDrawCanvas();
+};
+document.getElementById('btn-sketch-guess').onclick = async () => {
+  const inp = document.getElementById('sketch-guess-input');
+  const g = inp.value.trim();
+  if (!g || !sketchRoomId) return;
+  inp.value = '';
+  const round_num = (sketchState && sketchState.round_num) || 0;
+  try { await fetch(BACKEND + '/api/sketch/guess', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ room_id: sketchRoomId, round_num, guess: g }) }); } catch {}
+};
+document.getElementById('sketch-guess-input').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-sketch-guess').click(); });
 
 let rpsGameId = null;
 let rpsPollTimer = null;
@@ -5190,14 +5845,21 @@ function fmtAgo(seconds) {
   if (m >= 1) return m + 'm';
   return seconds + 's';
 }
+let economyZoomRange = 'all';
 function drawEconomyGraph(color, delta) {
   const canvas = document.getElementById('economy-graph');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width, h = canvas.height;
   ctx.clearRect(0, 0, w, h);
-  const points = economyHistoryCache.map(p => ({ ts: p.ts, v: Number(p.total || 0) }))
+  let points = economyHistoryCache.map(p => ({ ts: p.ts, v: Number(p.total || 0) }))
     .concat(economyLiveBuf.map(p => ({ ts: p.ts, v: p.v })));
+  if (economyZoomRange !== 'all' && points.length) {
+    const rangeSec = parseInt(economyZoomRange, 10);
+    const cutoff = (points[points.length - 1].ts) - rangeSec;
+    const windowed = points.filter(p => p.ts >= cutoff);
+    if (windowed.length >= 2) points = windowed;
+  }
   _economyGraphPoints = points;
   if (points.length < 2) {
     ctx.fillStyle = '#888'; ctx.font = '12px Inter, sans-serif'; ctx.textAlign = 'center';
@@ -5273,6 +5935,18 @@ function drawEconomyGraph(color, delta) {
   }
 }
 
+(function bindEconomyZoomButtons() {
+  document.querySelectorAll('.econ-zoom').forEach(btn => {
+    btn.onclick = () => {
+      economyZoomRange = btn.dataset.econRange;
+      document.querySelectorAll('.econ-zoom').forEach(b => {
+        b.style.background = b === btn ? 'var(--accent)' : '';
+        b.style.color = b === btn ? '#fff' : '';
+      });
+      drawEconomyGraph('rgba(147,197,253,0.9)', 0);
+    };
+  });
+})();
 (function bindEconomyGraphHover() {
   const canvas = document.getElementById('economy-graph');
   const tip = document.getElementById('economy-graph-tip');
@@ -5346,7 +6020,7 @@ async function loadGlobalLeaderboard() {
       const row = document.createElement('div');
       row.className = 'lb-row';
       const medal = i === 0 ? ' 🥇' : i === 1 ? ' 🥈' : i === 2 ? ' 🥉' : '';
-      row.innerHTML = `<span class="lb-rank">#${i+1}${medal}</span><div class="lb-status ${p.online ? 'online' : 'offline'}"></div><span class="lb-name">${esc(p.name)}</span><span class="lb-count">${p.pixels.toLocaleString()}</span>`;
+      row.innerHTML = `<span class="lb-rank">#${i+1}${medal}</span><div class="lb-status ${p.online ? 'online' : 'offline'}"></div>${avatarImg(p.name)}<span class="lb-name">${esc(p.name)}</span><span class="lb-count">${p.pixels.toLocaleString()}</span>`;
       el.appendChild(row);
     });
   } catch { el.innerHTML = '<div style="color:var(--red);font-size:11px;padding:6px;">Failed to load.</div>'; }
@@ -5361,6 +6035,7 @@ function logout() {
   if (ws) ws.close();
   if (socialWs) socialWs.close();
   authPanel.style.display = ''; userBar.style.display = 'none';
+  const ub2 = document.getElementById('user-bar-row2'); if (ub2) ub2.style.display = 'none';
   document.getElementById('guest-bar').style.display = 'none';
   document.getElementById('admin-tab-btn').style.display = 'none';
   chatInput.disabled = true; chatBtn.disabled = true;
@@ -5371,9 +6046,370 @@ function logout() {
 }
 
 document.getElementById('btn-logout').onclick = logout;
-document.getElementById('captcha-refresh').onclick = fetchCaptcha;
+
+(function setupReportFlow(){
+  const modal = document.getElementById('report-modal');
+  const overlay = document.getElementById('report-select-overlay');
+  const selBox = document.getElementById('report-select-box');
+  const infoEl = document.getElementById('report-selection-info');
+  const submitBtn = document.getElementById('btn-report-submit');
+  const statusEl = document.getElementById('report-status');
+  const reasonEl = document.getElementById('report-reason');
+  let selection = null;
+  let dragStart = null;
+  const setStatus = (m, ok) => { statusEl.textContent = m; statusEl.style.color = ok ? 'var(--accent)' : 'var(--red)'; };
+  const openModal = () => {
+    if (!currentLobbyId) { alert('Join a lobby before reporting.'); return; }
+    if (isGuest) { alert('Please make an account to submit reports.'); return; }
+    selection = null;
+    infoEl.textContent = 'No area selected yet.';
+    reasonEl.value = '';
+    statusEl.textContent = '';
+    submitBtn.disabled = true;
+    modal.style.display = 'flex';
+  };
+  const closeModal = () => { modal.style.display = 'none'; };
+  const beginSelect = () => {
+    closeModal();
+    overlay.style.display = 'block';
+    selBox.style.display = 'none';
+    dragStart = null;
+  };
+  const endSelect = () => {
+    overlay.style.display = 'none';
+    modal.style.display = 'flex';
+  };
+  const clientToGridSafe = (cx, cy) => {
+    const r = cvs.getBoundingClientRect();
+    if (cx < r.left || cx > r.right || cy < r.top || cy > r.bottom) return null;
+    return screenToGrid(cx - r.left, cy - r.top);
+  };
+  const onDown = (e) => {
+    if (overlay.style.display === 'none') return;
+    const pt = 'touches' in e && e.touches[0] ? e.touches[0] : e;
+    const g = clientToGridSafe(pt.clientX, pt.clientY);
+    if (!g) { overlay.style.display = 'none'; modal.style.display = 'flex'; return; }
+    dragStart = { gx: g.x, gy: g.y, sx: pt.clientX, sy: pt.clientY };
+    selBox.style.left = pt.clientX + 'px';
+    selBox.style.top = pt.clientY + 'px';
+    selBox.style.width = '0px';
+    selBox.style.height = '0px';
+    selBox.style.display = 'block';
+    e.preventDefault();
+  };
+  const onMove = (e) => {
+    if (!dragStart) return;
+    const pt = 'touches' in e && e.touches[0] ? e.touches[0] : e;
+    const left = Math.min(dragStart.sx, pt.clientX);
+    const top = Math.min(dragStart.sy, pt.clientY);
+    const w = Math.abs(pt.clientX - dragStart.sx);
+    const h = Math.abs(pt.clientY - dragStart.sy);
+    selBox.style.left = left + 'px'; selBox.style.top = top + 'px';
+    selBox.style.width = w + 'px'; selBox.style.height = h + 'px';
+    e.preventDefault();
+  };
+  const onUp = (e) => {
+    if (!dragStart) return;
+    const pt = 'changedTouches' in e && e.changedTouches[0] ? e.changedTouches[0] : e;
+    const g = clientToGridSafe(pt.clientX, pt.clientY);
+    if (g) {
+      const x1 = Math.max(0, Math.min(GRID_W - 1, Math.min(dragStart.gx, g.x)));
+      const y1 = Math.max(0, Math.min(GRID_H - 1, Math.min(dragStart.gy, g.y)));
+      const x2 = Math.max(0, Math.min(GRID_W - 1, Math.max(dragStart.gx, g.x)));
+      const y2 = Math.max(0, Math.min(GRID_H - 1, Math.max(dragStart.gy, g.y)));
+      if (x2 - x1 >= 1 && y2 - y1 >= 1) {
+        selection = { x1, y1, x2, y2 };
+        infoEl.textContent = `Selected: (${x1},${y1}) to (${x2},${y2}) — ${(x2-x1+1)*(y2-y1+1)} pixels`;
+        submitBtn.disabled = false;
+      }
+    }
+    dragStart = null;
+    endSelect();
+  };
+  document.getElementById('btn-report').onclick = openModal;
+  document.getElementById('btn-report-close').onclick = closeModal;
+  document.getElementById('btn-report-select').onclick = beginSelect;
+  document.addEventListener('mousedown', onDown);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchstart', onDown, { passive: false });
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onUp);
+  submitBtn.onclick = async () => {
+    if (!selection || !currentLobbyId) return;
+    setStatus('Submitting...', true); statusEl.style.color = 'var(--text-muted)';
+    submitBtn.disabled = true;
+    try {
+      const r = await fetch(BACKEND + '/api/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: authToken },
+        body: JSON.stringify({ lobby_id: currentLobbyId, ...selection, reason: reasonEl.value.trim().slice(0, 200) })
+      });
+      const d = await r.json();
+      if (d.error) { setStatus(d.error, false); submitBtn.disabled = false; return; }
+      setStatus('Report submitted. Thank you.', true);
+      setTimeout(closeModal, 1200);
+    } catch { setStatus('Request failed', false); submitBtn.disabled = false; }
+  };
+})();
+let lastActivityAt = Date.now();
+let isAfk = false;
+let afkSince = Date.now();
+function refreshAfk() {
+  const wasAfk = isAfk;
+  const hidden = document.hidden;
+  const idle = (Date.now() - lastActivityAt) > 60000;
+  const now = hidden || idle;
+  if (now !== wasAfk) {
+    isAfk = now;
+    afkSince = Date.now();
+    if (socialWs && socialWs.readyState === WebSocket.OPEN) {
+      try { socialWs.send(JSON.stringify({ type: 'presence', afk: isAfk })); } catch {}
+    }
+  }
+}
+['mousemove','keydown','touchstart','pointerdown','scroll','wheel'].forEach(ev => {
+  document.addEventListener(ev, () => { lastActivityAt = Date.now(); refreshAfk(); }, { passive: true });
+});
+document.addEventListener('visibilitychange', refreshAfk);
+setInterval(refreshAfk, 5000);
+
+function applyPrefs() {
+  const noAnim = safeStore.getItem('ez_anim_disabled') === '1';
+  document.body.classList.toggle('no-anim', noAnim);
+  const noPan = safeStore.getItem('ez_panorama_hidden') === '1';
+  document.body.classList.toggle('no-panorama', noPan);
+  const noTips = safeStore.getItem('ez_tips_hidden') === '1';
+  const tipBar = document.getElementById('tip-banner');
+  if (tipBar && noTips) tipBar.style.display = 'none';
+}
+applyPrefs();
+(function(){
+  const modal = document.getElementById('account-settings-modal');
+  const status = document.getElementById('account-pw-status');
+  const oldEl = document.getElementById('account-old-pw');
+  const newEl = document.getElementById('account-new-pw');
+  const new2El = document.getElementById('account-new-pw2');
+  const afkEl = document.getElementById('account-settings-afk');
+  const tipsEl = document.getElementById('pref-hide-tips');
+  const panEl = document.getElementById('pref-hide-panorama');
+  const animEl = document.getElementById('pref-disable-anim');
+  let afkTimer = null;
+  const fmtAfkDur = (ms) => {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(s / 60), r = s % 60;
+    if (m === 0) return s + 's';
+    if (m < 60) return m + 'm ' + r + 's';
+    const h = Math.floor(m / 60); return h + 'h ' + (m % 60) + 'm';
+  };
+  const updateAfkLabel = () => {
+    if (!afkEl) return;
+    if (isAfk) afkEl.innerHTML = 'AFK <span style="color:var(--text-muted);">(' + fmtAfkDur(Date.now() - afkSince) + ')</span>';
+    else afkEl.textContent = 'active';
+  };
+  const setStatus = (msg, ok) => { status.textContent = msg; status.style.color = ok ? 'var(--accent)' : 'var(--red)'; };
+  const open = () => {
+    document.getElementById('account-settings-username').textContent = username || '';
+    const previewImg = document.getElementById('settings-avatar-preview');
+    if (previewImg) { previewImg.src = avatarUrl(username); previewImg.onerror = () => { previewImg.onerror = null; previewImg.src = DEFAULT_AVATAR; }; }
+    document.getElementById('settings-avatar-status').textContent = '';
+    oldEl.value = ''; newEl.value = ''; new2El.value = '';
+    setStatus('', true); status.style.color = 'var(--text-muted)';
+    tipsEl.checked = safeStore.getItem('ez_tips_hidden') === '1';
+    panEl.checked = safeStore.getItem('ez_panorama_hidden') === '1';
+    animEl.checked = safeStore.getItem('ez_anim_disabled') === '1';
+    updateAfkLabel();
+    if (afkTimer) clearInterval(afkTimer);
+    afkTimer = setInterval(updateAfkLabel, 1000);
+    modal.style.display = 'flex';
+  };
+  const avatarFileEl = document.getElementById('settings-avatar-file');
+  document.getElementById('btn-settings-avatar-upload').onclick = () => avatarFileEl.click();
+  avatarFileEl.onchange = async () => {
+    const f = avatarFileEl.files && avatarFileEl.files[0];
+    if (!f) return;
+    const statusEl = document.getElementById('settings-avatar-status');
+    statusEl.style.color = 'var(--text-muted)'; statusEl.textContent = 'Resizing...';
+    try {
+      const dataUrl = await resizeAvatarFile(f, 160);
+      statusEl.textContent = 'Uploading...';
+      const r = await fetch(BACKEND + '/api/account/set-avatar', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ avatar: dataUrl }) });
+      const d = await r.json();
+      if (d.error) { statusEl.style.color = 'var(--red)'; statusEl.textContent = d.error; return; }
+      _avatarBust = Date.now();
+      const previewImg = document.getElementById('settings-avatar-preview');
+      previewImg.src = dataUrl;
+      statusEl.style.color = '#22c55e'; statusEl.textContent = 'Saved!';
+    } catch (e) { statusEl.style.color = 'var(--red)'; statusEl.textContent = 'Upload failed: ' + (e && e.message || e); }
+    avatarFileEl.value = '';
+  };
+  document.getElementById('btn-settings-avatar-clear').onclick = async () => {
+    const statusEl = document.getElementById('settings-avatar-status');
+    statusEl.style.color = 'var(--text-muted)'; statusEl.textContent = 'Removing...';
+    try {
+      const r = await fetch(BACKEND + '/api/account/clear-avatar', { method: 'POST', headers: { Authorization: authToken } });
+      const d = await r.json();
+      if (d.error) { statusEl.style.color = 'var(--red)'; statusEl.textContent = d.error; return; }
+      _avatarBust = Date.now();
+      document.getElementById('settings-avatar-preview').src = DEFAULT_AVATAR;
+      statusEl.style.color = '#22c55e'; statusEl.textContent = 'Removed';
+    } catch { statusEl.style.color = 'var(--red)'; statusEl.textContent = 'Request failed'; }
+  };
+async function resizeAvatarFile(file, maxSize) {
+  if (file.size > 5 * 1024 * 1024) throw new Error('Image too big (max 5MB source)');
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const w = Math.max(16, Math.round(img.width * scale));
+        const h = Math.max(16, Math.round(img.height * scale));
+        const cvs = document.createElement('canvas');
+        cvs.width = w; cvs.height = h;
+        const ctx = cvs.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        let out = null;
+        try { out = cvs.toDataURL('image/webp', 0.82); if (!out || out.length < 100) out = null; } catch {}
+        if (!out) out = cvs.toDataURL('image/jpeg', 0.85);
+        URL.revokeObjectURL(url);
+        resolve(out);
+      } catch (e) { URL.revokeObjectURL(url); reject(e); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Not a valid image')); };
+    img.src = url;
+  });
+}
+  const close = () => { if (afkTimer) { clearInterval(afkTimer); afkTimer = null; } modal.style.display = 'none'; };
+  tipsEl.onchange = () => { safeStore.setItem('ez_tips_hidden', tipsEl.checked ? '1' : '0'); applyPrefs(); const tb = document.getElementById('tip-banner'); if (tb && !tipsEl.checked) tb.style.display = ''; };
+  panEl.onchange = () => { safeStore.setItem('ez_panorama_hidden', panEl.checked ? '1' : '0'); applyPrefs(); };
+  animEl.onchange = () => { safeStore.setItem('ez_anim_disabled', animEl.checked ? '1' : '0'); applyPrefs(); };
+  document.getElementById('btn-account-settings').onclick = open;
+  document.getElementById('btn-account-settings-close').onclick = close;
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.getElementById('btn-account-change-pw').onclick = async () => {
+    const oldPw = oldEl.value, newPw = newEl.value, new2 = new2El.value;
+    if (!oldPw || !newPw) { setStatus('Fill in both passwords', false); return; }
+    if (newPw.length < 4) { setStatus('New password must be at least 4 characters', false); return; }
+    if (newPw !== new2) { setStatus('New passwords do not match', false); return; }
+    if (oldPw === newPw) { setStatus('New password must differ from current', false); return; }
+    setStatus('Updating...', true); status.style.color = 'var(--text-muted)';
+    try {
+      const r = await fetch(BACKEND + '/api/account/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ old_password: oldPw, new_password: newPw }) });
+      const d = await r.json();
+      if (d.error) { setStatus(d.error, false); return; }
+      setStatus(`Password updated. ${d.other_sessions_revoked} other session${d.other_sessions_revoked === 1 ? '' : 's'} logged out.`, true);
+      oldEl.value = ''; newEl.value = ''; new2El.value = '';
+    } catch { setStatus('Request failed', false); }
+  };
+})();
+
+(function setupMovies() {
+  const modal = document.getElementById('movies-modal');
+  const list = document.getElementById('movies-list');
+  const playerWrap = document.getElementById('movies-player-wrap');
+  const iframe = document.getElementById('movies-iframe');
+  const nowPlaying = document.getElementById('movies-now-playing');
+  function extractYouTubeId(src) {
+    if (!src) return null;
+    const s = String(src);
+    const m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (m) return m[1];
+    if (/^[a-zA-Z0-9_-]{11}$/.test(s) && !/^[0-9]+$/.test(s)) return s;
+    return null;
+  }
+  function extractDriveId(src) {
+    if (!src) return null;
+    const m = String(src).match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (m) return m[1];
+    if (/^[a-zA-Z0-9_-]{20,}$/.test(src)) return src;
+    return null;
+  }
+  function previewUrl(src) {
+    const ytId = extractYouTubeId(src);
+    if (ytId) return 'https://www.youtube-nocookie.com/embed/' + ytId + '?rel=0&modestbranding=1';
+    const id = extractDriveId(src);
+    return id ? 'https://drive.google.com/file/d/' + id + '/preview' : null;
+  }
+  function renderList() {
+    list.innerHTML = '';
+    if (!MOVIES.length) {
+      list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">No movies have been added yet. The site owner needs to fill in the MOVIES config array.</div>';
+      return;
+    }
+    MOVIES.forEach((m, i) => {
+      const card = document.createElement('div');
+      if (m.comingSoon) {
+        card.style.cssText = 'background:var(--bg-secondary);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:12px;opacity:0.6;cursor:default;';
+        card.innerHTML = '<div style="font-weight:700;font-size:13px;margin-bottom:4px;color:var(--text-muted);">⏳ ' + esc(m.title || 'More coming soon...') + '</div><div style="font-size:10px;color:var(--text-muted);">Stay tuned</div>';
+        list.appendChild(card);
+        return;
+      }
+      const url = previewUrl(m.src);
+      card.style.cssText = 'background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;cursor:' + (url ? 'pointer' : 'not-allowed') + ';transition:transform 0.15s, border-color 0.15s;';
+      card.innerHTML = '<div style="font-weight:700;font-size:13px;margin-bottom:4px;">🎬 ' + esc(m.title || ('Movie ' + (i+1))) + '</div><div style="font-size:10px;color:var(--text-muted);">' + (url ? 'Click to play' : 'Invalid Drive URL') + '</div>';
+      if (url) {
+        card.onmouseenter = () => { card.style.borderColor = 'var(--accent)'; card.style.transform = 'translateY(-2px)'; };
+        card.onmouseleave = () => { card.style.borderColor = 'var(--border)'; card.style.transform = ''; };
+        card.onclick = () => playMovie(m, url);
+      }
+      list.appendChild(card);
+    });
+  }
+  function playMovie(m, url) {
+    iframe.src = url;
+    nowPlaying.textContent = m.title || 'Movie';
+    playerWrap.style.display = 'block';
+    list.style.display = 'none';
+  }
+  function backToList() {
+    iframe.src = '';
+    playerWrap.style.display = 'none';
+    list.style.display = 'grid';
+  }
+  function open() {
+    backToList();
+    renderList();
+    modal.style.display = 'flex';
+    safeStore.setItem('ez_movies_tutorial_seen', '1');
+    const arr = document.getElementById('movies-tutorial-arrow');
+    if (arr) arr.style.display = 'none';
+  }
+  function close() {
+    iframe.src = '';
+    modal.style.display = 'none';
+  }
+  document.getElementById('btn-movies').onclick = open;
+  document.getElementById('btn-movies-close').onclick = close;
+  document.getElementById('btn-movies-back').onclick = backToList;
+  const pasteInput = document.getElementById('movies-paste-input');
+  const pasteBtn = document.getElementById('btn-movies-paste-play');
+  const pastePlay = () => {
+    const raw = pasteInput.value.trim();
+    if (!raw) return;
+    const url = previewUrl(raw);
+    if (!url) { alert('Not a recognized URL. Paste a YouTube link like https://youtube.com/watch?v=... or a Google Drive share link.'); return; }
+    const ytId = extractYouTubeId(raw);
+    playMovie({ title: ytId ? 'YouTube: ' + ytId : 'Pasted video' }, url);
+    pasteInput.value = '';
+  };
+  pasteBtn.onclick = pastePlay;
+  pasteInput.addEventListener('keydown', e => { if (e.key === 'Enter') pastePlay(); });
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  const arrow = document.getElementById('movies-tutorial-arrow');
+  if (arrow) arrow.onclick = () => { arrow.style.display = 'none'; safeStore.setItem('ez_movies_tutorial_seen', '1'); };
+})();
+
+function showMoviesTutorialIfNew() {
+  if (safeStore.getItem('ez_movies_tutorial_seen') === '1') return;
+  const arr = document.getElementById('movies-tutorial-arrow');
+  if (!arr) return;
+  arr.style.display = 'block';
+  setTimeout(() => { arr.style.display = 'none'; safeStore.setItem('ez_movies_tutorial_seen', '1'); }, 15000);
+}
+
 authPass.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-auth-submit').click(); });
-captchaAns.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-auth-submit').click(); });
 authUser.addEventListener('keydown', e => { if (e.key === 'Enter') authPass.focus(); });
 
 const lobbyScreen = document.getElementById('lobby-screen');
@@ -5718,8 +6754,10 @@ function joinLobby(id, name, isPublic) {
     document.getElementById('guest-bar').style.display = 'flex';
     document.getElementById('guest-display').textContent = guestName;
     chatInput.disabled = false; chatBtn.disabled = false;
+    setTimeout(() => alert('Make an account to get access to drawing and friends list and movies!'), 200);
   } else {
     isGuest = false;
+    setTimeout(showMoviesTutorialIfNew, 400);
   }
   currentLobbyId = id; currentLobbyName = name;
   stopEconomyPoll();
@@ -5994,11 +7032,12 @@ function connectToLobby(lobbyId, lobbyName) {
   const wsProto = BACKEND_HOST ? 'wss' : protocol;
   try { ws = new WebSocket(`${wsProto}://${WS_HOST}/ws`); } catch { addSystemMsg('No server.'); return; }
   ws.binaryType = 'arraybuffer';
+  const noDeflate = (typeof DecompressionStream === 'undefined' || typeof ReadableStream === 'undefined' || typeof Response === 'undefined' || !Blob.prototype.stream);
   ws.onopen = () => {
     if (isGuest) {
-      ws.send(JSON.stringify({ type: 'guest_join', lobby_id: lobbyId, guest_name: guestName }));
+      ws.send(JSON.stringify({ type: 'guest_join', lobby_id: lobbyId, guest_name: guestName, no_deflate: noDeflate }));
     } else {
-      ws.send(JSON.stringify({ type: 'auth', token: authToken, lobby_id: lobbyId, device_id: deviceId }));
+      ws.send(JSON.stringify({ type: 'auth', token: authToken, lobby_id: lobbyId, device_id: deviceId, no_deflate: noDeflate }));
     }
     addSystemMsg(`Connecting to ${lobbyName}...`);
     document.getElementById('disconnect-banner').style.display = 'none';
@@ -6022,9 +7061,10 @@ function connectToLobby(lobbyId, lobbyName) {
             const meta = pendingGridMeta;
             pendingGridMeta = null;
             try {
-              meta.data = meta.compressed === 'deflate' ? await decompressDeflate(data) : new Uint8Array(data);
-            } catch {
-              addSystemMsg('Failed to decode grid (try refreshing).');
+              if (meta.compressed === 'deflate') meta.data = await decompressDeflate(data);
+              else meta.data = new Uint8Array(data);
+            } catch (e) {
+              addSystemMsg('Failed to decode grid (try refreshing). ' + (e && e.message ? e.message : ''));
               continue;
             }
             handleWsMessage(meta);
@@ -6059,7 +7099,7 @@ function connectToLobby(lobbyId, lobbyName) {
       }
       case 'leaderboard_update': if (document.querySelector('[data-tab="lb-tab"]').classList.contains('active')) renderLeaderboard(msg.leaderboard); break;
       case 'pong': { const ping = Date.now() - msg.time; const el = document.getElementById('ping-ms'); el.textContent = ping; el.style.color = ping < 100 ? '#0f0' : ping < 250 ? '#ff0' : '#f00'; } break;
-      case 'chat': if (isFakeAdmin && fakeBannedUsers.has(msg.username.toLowerCase())) break; addMsg(msg.username, msg.text, msg.is_owner, msg.is_guest, msg.is_vip, msg.rank, msg.clan, msg.reply_to); showMobileChatBubble(msg.username, msg.text, msg.is_owner, msg.is_guest); if (msg.username && msg.username.toLowerCase() !== (username || '').toLowerCase()) ezpMarkUnseen(); break;
+      case 'chat': if (isFakeAdmin && fakeBannedUsers.has(msg.username.toLowerCase())) break; addMsg(msg.username, msg.text, msg.is_owner, msg.is_guest, msg.is_vip, msg.rank, msg.clan, msg.reply_to, msg.name_color); showMobileChatBubble(msg.username, msg.text, msg.is_owner, msg.is_guest); if (msg.username && msg.username.toLowerCase() !== (username || '').toLowerCase()) ezpMarkUnseen(); break;
       case 'system': if (msg.text && msg.text.indexOf(' joined') !== -1) ezpMarkUnseen(); addSystemMsg(msg.text); break;
       case 'rate_warn': showCooldownWarn ? (cooldownWarn.textContent = msg.text, cooldownWarnTimer && clearTimeout(cooldownWarnTimer), cooldownWarnTimer = setTimeout(() => { cooldownWarn.innerHTML = '&nbsp;'; }, 2500)) : null; break;
       case 'night_event_state': if (msg.state) { nightEventState = msg.state; nightEventServerOffset = (msg.state.server_now_ts || 0) - Math.floor(Date.now() / 1000); renderNightEvent(); } break;
@@ -6067,7 +7107,7 @@ function connectToLobby(lobbyId, lobbyName) {
       case 'streak_bonus': { myStreak = msg.count || myStreak; myStreakProgress = { seconds: myStreakProgress.required || 900, required: myStreakProgress.required || 900, earned_today: true }; if (msg.used_pass && myPurchases) myPurchases.streak_pass = msg.passes_left; applyPbState(); showDmToast('🔥 Daily Streak', (msg.used_pass ? '🛡 Streak Pass used! ' : '') + 'Day ' + msg.count + ' - +' + msg.reward + ' $', () => {}); break; }
       case 'typing_spy': if (isRealAdmin()) showTypingSpy(msg.username, msg.draft); break;
       case 'online': document.getElementById('online-count').textContent = msg.count; if (msg.total !== undefined) document.getElementById('total-online').textContent = msg.total; if (Array.isArray(msg.users)) { lobbyUsers = msg.users.slice(); const stillHere = new Set(lobbyUsers.map(u => u.toLowerCase())); for (const k of [...peers.keys()]) { if (k !== '__self__' && !stillHere.has(k)) closePeer(k); } } break;
-      case 'grid': GRID_W = msg.width || 256; GRID_H = msg.height || 256; grid = new Uint8Array(msg.data); resetOffscreen(); currentLobbyOwner = msg.owner || null; canPlace = msg.can_place !== false && !msg.guest; brushPerm = msg.brush_perm || { size: 1, drag: false }; updateBrushSizeSelectVisibility(); updateModeBtnVisibility(); COOLDOWN = (msg.cooldown !== undefined ? msg.cooldown : 0.5) * 1000; userHasInteracted = false; resizeCanvas(); fitViewToGrid(); requestAnimationFrame(() => { resizeCanvas(); fitViewToGrid(); render(); }); if (!canPlace && !isGuest) addSystemMsg('You are spectating this whitelist lobby. You can chat but not place pixels.'); { isFakeAdmin = !!msg.fake_admin; fakeBannedUsers.clear(); if (isFakeAdmin) document.getElementById('admin-tab-btn').style.display = 'block'; const isOwn = (!isGuest && currentLobbyOwner && username && currentLobbyOwner.toLowerCase() === username.toLowerCase()); const isTPAdminUser = !isGuest && username && username.toLowerCase() === 'toothpaste'; document.getElementById('btn-import-grid').style.display = isOwn ? '' : 'none'; document.getElementById('btn-manage-current').style.display = (isOwn || isTPAdminUser) ? '' : 'none'; } remoteCursors = {}; typingUsers.clear(); renderTypingIndicator(); lobbyUsers = []; document.getElementById('mention-popup').style.display = 'none'; undoStack.length = 0; updateUndoButtonState(); updateTimelapseButton(); render(); break;
+      case 'grid': GRID_W = msg.width || 256; GRID_H = msg.height || 256; grid = new Uint8Array(msg.data); resetOffscreen(); currentLobbyOwner = msg.owner || null; canPlace = msg.can_place !== false && !msg.guest; brushPerm = msg.brush_perm || { size: 1, drag: false }; updateBrushSizeSelectVisibility(); updateModeBtnVisibility(); if (isGuest && msg.assigned_name) { guestName = msg.assigned_name; username = msg.assigned_name; const gd = document.getElementById('guest-display'); if (gd) gd.textContent = guestName; } COOLDOWN = (msg.cooldown !== undefined ? msg.cooldown : 0.5) * 1000; userHasInteracted = false; resizeCanvas(); fitViewToGrid(); requestAnimationFrame(() => { resizeCanvas(); fitViewToGrid(); render(); }); if (!canPlace && !isGuest) addSystemMsg('You are spectating this whitelist lobby. You can chat but not place pixels.'); { isFakeAdmin = !!msg.fake_admin; fakeBannedUsers.clear(); if (isFakeAdmin) document.getElementById('admin-tab-btn').style.display = 'block'; const isOwn = (!isGuest && currentLobbyOwner && username && currentLobbyOwner.toLowerCase() === username.toLowerCase()); const isTPAdminUser = !isGuest && username && username.toLowerCase() === 'toothpaste'; document.getElementById('btn-import-grid').style.display = isOwn ? '' : 'none'; document.getElementById('btn-manage-current').style.display = (isOwn || isTPAdminUser) ? '' : 'none'; } remoteCursors = {}; typingUsers.clear(); renderTypingIndicator(); lobbyUsers = []; document.getElementById('mention-popup').style.display = 'none'; undoStack.length = 0; updateUndoButtonState(); updateTimelapseButton(); render(); break;
       case 'pixel_owner_result': {
         if (!canSeePixelOwner()) break;
         if (pixelOwnerCell !== msg.y * GRID_W + msg.x) break;
@@ -6141,7 +7181,7 @@ function renderLeaderboard(board) {
     const nameClass = p.name.toLowerCase() === 'toothpaste' ? 'lb-name rainbow' : 'lb-name';
     const canManage = (amOwner || isTPAdmin) && p.name.toLowerCase() !== username.toLowerCase();
     const nameStyle = canManage ? ' style="cursor:pointer;text-decoration:underline dotted"' : '';
-    row.innerHTML = `<span class="lb-rank">#${i+1}${medal}</span><div class="lb-status ${p.online ? 'online' : 'offline'}"></div><span class="${nameClass}"${nameStyle}>${esc(p.name)}</span><span class="lb-count">${p.pixels.toLocaleString()}</span>`;
+    row.innerHTML = `<span class="lb-rank">#${i+1}${medal}</span><div class="lb-status ${p.online ? 'online' : 'offline'}"></div>${avatarImg(p.name)}<span class="${nameClass}"${nameStyle}>${esc(p.name)}</span><span class="lb-count">${p.pixels.toLocaleString()}</span>`;
     if (canManage) {
       row.querySelector(`.${nameClass.split(' ')[0]}`).addEventListener('click', e => showLobbyUserMenu(e, p.name));
     }
@@ -6208,7 +7248,10 @@ function connectSocial() {
   const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
   const socialProto = BACKEND_HOST ? 'wss' : protocol;
   try { socialWs = new WebSocket(`${socialProto}://${WS_HOST}/ws/social`); } catch { return; }
-  socialWs.onopen = () => { socialWs.send(JSON.stringify({ type: 'auth', token: authToken, device_id: deviceId })); };
+  socialWs.onopen = () => {
+    socialWs.send(JSON.stringify({ type: 'auth', token: authToken, device_id: deviceId }));
+    try { socialWs.send(JSON.stringify({ type: 'presence', afk: isAfk })); } catch {}
+  };
   socialWs.onmessage = async e => {
     const msg = JSON.parse(e.data);
     if (msg.type === 'client_alert') { alert(msg.text); return; }
@@ -6376,7 +7419,7 @@ function connectSocial() {
       if (isViewingThisThread) {
         const ti = document.getElementById('dm-typing-ind'); if (ti) ti.style.display = 'none';
         appendDmMsg(msg.from, msg.text || '', msg.time, msg.image_url || msg.image, msg.reply_to);
-        if (socialWs && socialWs.readyState === WebSocket.OPEN) {
+        if (socialWs && socialWs.readyState === WebSocket.OPEN && !document.hidden) {
           socialWs.send(JSON.stringify({ type: 'dm_seen', peer: msg.from }));
         }
       } else {
@@ -6406,6 +7449,9 @@ function connectSocial() {
       }
     }
     if (msg.type === 'friend_accepted') { loadFriendsList(); }
+    if (msg.type === 'friend_presence') {
+      loadFriendsList();
+    }
     if (msg.type === 'group_msg') {
       if (currentGroupId === msg.group_id) {
         appendDmMsg(msg.from, msg.text || '', msg.time, msg.image_url || msg.image);
@@ -6444,7 +7490,7 @@ async function loadFriendsList() {
       addSection(panel, 'Incoming Requests');
       data.incoming.forEach(u => {
         const d = document.createElement('div'); d.className = 'friend-item';
-        d.innerHTML = `<span class="f-name">${esc(u)}</span><button class="win-btn" data-accept="${u}">Accept</button><button class="win-btn" data-decline="${u}">X</button>`;
+        d.innerHTML = `<span class="f-name">${esc(u)}</span><button class="win-btn" data-accept="${esc(u)}">Accept</button><button class="win-btn" data-decline="${esc(u)}">X</button>`;
         d.querySelector('[data-accept]').onclick = async () => { await fetch('/api/friends/accept', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: u }) }); loadFriendsList(); };
         d.querySelector('[data-decline]').onclick = async () => { await fetch('/api/friends/decline', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: u }) }); loadFriendsList(); };
         panel.appendChild(d);
@@ -6464,7 +7510,11 @@ async function loadFriendsList() {
     }
     data.friends.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0)).forEach(f => {
       const d = document.createElement('div'); d.className = 'friend-item';
-      d.innerHTML = `<div class="f-status ${f.online ? 'online' : 'offline'}"></div><span class="f-name">${esc(f.name)}</span><button class="win-btn" data-dm="${f.name}" style="font-size:10px;padding:1px 4px;">DM</button><button class="win-btn" data-rm="${f.name}" style="font-size:10px;padding:1px 4px;color:red;">X</button>`;
+      let statusCls = f.online ? (f.afk ? 'afk' : 'online') : 'offline';
+      let subText = '';
+      if (f.online && f.afk) subText = `<span class="f-sub" style="color:#f0b232;font-weight:600;">AFK</span>`;
+      else if (!f.online) subText = `<span class="f-sub">${f.last_online ? 'last online ' + fmtRelTime(f.last_online) : 'Inactive'}</span>`;
+      d.innerHTML = `<div class="f-status ${statusCls}"></div>${avatarImg(f.name, 'lg')}<div class="f-info"><span class="f-name">${esc(f.name)}</span>${subText}</div><button class="win-btn" data-dm="${esc(f.name)}" style="font-size:10px;padding:1px 4px;">DM</button><button class="win-btn" data-rm="${esc(f.name)}" style="font-size:10px;padding:1px 4px;color:red;">X</button>`;
       d.querySelector('[data-dm]').onclick = () => { openDm(f.name); };
       d.querySelector('[data-rm]').onclick = async () => { if (confirm(`Remove ${f.name}?`)) { await fetch('/api/friends/remove', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: f.name }) }); loadFriendsList(); }};
       panel.appendChild(d);
@@ -6484,6 +7534,14 @@ document.getElementById('btn-friend-add').onclick = async () => {
 let currentDmWith = null;
 let currentGroupId = null;
 let myFriendsCache = [];
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  if (!currentDmWith) return;
+  if (!socialWs || socialWs.readyState !== WebSocket.OPEN) return;
+  const activeTab = document.querySelector('.sidebar-tab.active');
+  const inThread = activeTab && activeTab.dataset.tab === 'msgs-tab' && document.getElementById('msg-view').style.display !== 'none';
+  if (inThread) socialWs.send(JSON.stringify({ type: 'dm_seen', peer: currentDmWith }));
+});
 
 async function loadMsgList() {
   const list = document.getElementById('msg-list'); list.innerHTML = '';
@@ -6588,13 +7646,18 @@ async function openDm(friendName) {
   const el = document.getElementById('msg-view-msgs'); el.innerHTML = '';
   delete unreadDms[friendName.toLowerCase()];
   updateDmTabBadge();
-  if (socialWs && socialWs.readyState === WebSocket.OPEN) {
+  if (socialWs && socialWs.readyState === WebSocket.OPEN && !document.hidden) {
     socialWs.send(JSON.stringify({ type: 'dm_seen', peer: friendName }));
   }
   try {
     const res = await fetch(`/api/dm/history?with=${encodeURIComponent(friendName)}`, { headers: { Authorization: authToken } });
     const data = await res.json();
     (data.messages || []).forEach(m => appendDmMsg(m.from, m.text || '', m.time, m.image_url || m.image, m.reply_to));
+    const pls = data.peer_last_seen || 0;
+    if (pls && lastSelfDmEl) {
+      const lastTs = parseInt(lastSelfDmEl.dataset.ts || '0', 10);
+      if (lastTs && pls >= lastTs) showDmSeen();
+    }
   } catch {}
   document.getElementById('msg-send-input').focus();
 }
@@ -6613,7 +7676,7 @@ function appendDmMsg(from, text, t, image, replyTo) {
   let body = '';
   if (text) body = ' ' + linkify(esc(filterText(text)));
   const replyBtn = `<span class="dm-reply-btn" title="Reply" style="cursor:pointer;color:var(--text-muted);font-size:11px;margin-left:6px;">&#x21A9;</span>`;
-  d.innerHTML = `${replyHtml}<span class="dm-time">${ts}</span><b>${esc(from)}:</b>${body}${replyBtn}`;
+  d.innerHTML = `${replyHtml}<span class="dm-time">${ts}</span>${avatarImg(from)}<b>${esc(from)}:</b>${body}${replyBtn}`;
   if (image) {
     const img = document.createElement('img');
     img.src = image; img.referrerPolicy = 'no-referrer';
@@ -6622,6 +7685,7 @@ function appendDmMsg(from, text, t, image, replyTo) {
     d.appendChild(img);
   }
   d.querySelector('.dm-reply-btn').addEventListener('click', () => setDmReply(from, text || '[image]'));
+  d.dataset.ts = String(t || 0);
   el.appendChild(d);
   if (username && from.toLowerCase() === username.toLowerCase()) lastSelfDmEl = d;
   el.scrollTop = el.scrollHeight;
@@ -7110,10 +8174,26 @@ document.getElementById('btn-admin-mod-log').onclick = async () => {
     if (!d.log || !d.log.length) { list.innerHTML = '<span style="color:var(--text-muted);">No mod bans yet</span>'; return; }
     d.log.slice().reverse().forEach(e => {
       const row = document.createElement('div');
-      const tType = e.type === 'school_ban' ? '<span style="color:#3b82f6;">SCHOOL</span>' : '<span style="color:#d32f2f;">REGULAR</span>';
+      let tType;
+      if (e.type === 'school_ban') tType = '<span style="color:#3b82f6;">SCHOOL</span>';
+      else if (e.type === 'unban') tType = '<span style="color:#22c55e;">UNBAN</span>';
+      else tType = '<span style="color:#d32f2f;">REGULAR</span>';
       const when = new Date(e.ts * 1000).toLocaleString();
+      const meta = [];
+      if (e.type === 'regular_ban') {
+        if (e.ip) meta.push('ip ' + esc(e.ip));
+        if (e.device_id) meta.push('device ' + esc(String(e.device_id).slice(0, 12)) + '…');
+        meta.push('booted ' + (e.booted || 0));
+      } else if (e.type === 'school_ban') {
+        meta.push('booted ' + (e.booted || 0));
+      } else if (e.type === 'unban') {
+        if (e.removed_account) meta.push('account');
+        if (e.removed_ip) meta.push('ip ' + esc(e.removed_ip));
+        if (e.removed_device) meta.push('device ' + esc(String(e.removed_device).slice(0, 12)) + '…');
+        if (!meta.length) meta.push('nothing to remove');
+      }
       row.style.cssText = 'padding:3px 6px;background:var(--bg-elevated);border-radius:3px;';
-      row.innerHTML = '<b>' + esc(e.moderator) + '</b> &rarr; ' + tType + ' &rarr; <b>' + esc(e.target) + '</b> <span style="color:var(--text-muted);">(' + when + ', booted ' + (e.booted || 0) + ')</span>';
+      row.innerHTML = '<b>' + esc(e.moderator) + '</b> &rarr; ' + tType + ' &rarr; <b>' + esc(e.target) + '</b> <span style="color:var(--text-muted);">(' + when + ', ' + meta.join(', ') + ')</span>';
       list.appendChild(row);
     });
   } catch { list.innerHTML = '<span style="color:var(--red);">Failed to load</span>'; }
@@ -7157,6 +8237,54 @@ document.getElementById('btn-mod-unban').onclick = async () => {
     if (!d.error) document.getElementById('mod-target-input').value = '';
   } catch { status.textContent = 'Server offline.'; status.style.color = 'var(--red)'; }
 };
+
+(function setupModReports(){
+  const btn = document.getElementById('btn-mod-reports-refresh');
+  const listEl = document.getElementById('mod-reports-list');
+  const showHandled = document.getElementById('mod-reports-show-handled');
+  if (!btn || !listEl) return;
+  async function load() {
+    listEl.innerHTML = '<div style="color:var(--text-muted);">Loading...</div>';
+    try {
+      const r = await fetch(BACKEND + '/api/mod/reports', { headers: { Authorization: authToken } });
+      const d = await r.json();
+      if (d.error) { listEl.innerHTML = '<span style="color:var(--red);">' + esc(d.error) + '</span>'; return; }
+      const reps = (d.reports || []).filter(r => showHandled.checked || !r.handled);
+      listEl.innerHTML = '';
+      if (!reps.length) { listEl.innerHTML = '<div style="color:var(--text-muted);">No reports.</div>'; return; }
+      reps.forEach(rep => {
+        const when = new Date(rep.ts * 1000).toLocaleString();
+        const authors = Object.entries(rep.authors || {}).sort((a,b) => b[1]-a[1]);
+        const authorsHtml = authors.length
+          ? authors.map(([n, c]) => `<span style="background:var(--bg-elevated);padding:1px 6px;border-radius:8px;margin-right:4px;"><b>${esc(n)}</b> <span style="color:var(--text-muted);">${c}px</span></span>`).join('')
+          : '<span style="color:var(--text-muted);">(no author info — pixels placed before restart)</span>';
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:8px 10px;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid ' + (rep.handled ? '#22c55e' : '#d32f2f') + ';';
+        row.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div><b>${esc(rep.reporter)}</b> reported <b>${esc(rep.lobby_name || rep.lobby_id)}</b> <span style="color:var(--text-muted);">(${when})</span></div>
+          ${rep.handled ? `<span style="color:#22c55e;font-size:10px;">✓ handled by ${esc(rep.handled_by || '?')}</span>` : `<button class="win-btn btn-resolve" data-ts="${rep.ts}" style="background:#22c55e;color:#fff;font-size:10px;padding:2px 8px;">Mark handled</button>`}
+        </div>
+        <div style="margin-top:4px;color:var(--text-muted);">Region (${rep.x1},${rep.y1})–(${rep.x2},${rep.y2}) — ${(rep.x2-rep.x1+1)*(rep.y2-rep.y1+1)} pixels</div>
+        ${rep.reason ? `<div style="margin-top:4px;font-style:italic;">"${esc(rep.reason)}"</div>` : ''}
+        <div style="margin-top:6px;">${authorsHtml}</div>`;
+        listEl.appendChild(row);
+      });
+      listEl.querySelectorAll('.btn-resolve').forEach(b => {
+        b.onclick = async () => {
+          const ts = parseInt(b.dataset.ts, 10);
+          try {
+            const r2 = await fetch(BACKEND + '/api/mod/report-resolve', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ ts }) });
+            const d2 = await r2.json();
+            if (d2.ok) load();
+          } catch {}
+        };
+      });
+    } catch { listEl.innerHTML = '<span style="color:var(--red);">Failed to load</span>'; }
+  }
+  btn.onclick = load;
+  showHandled.onchange = load;
+})();
+
 document.getElementById('btn-admin-device-ban').onclick = async () => {
   const v = document.getElementById('admin-device-input').value.trim();
   if (!v) return;
@@ -7201,6 +8329,24 @@ document.getElementById('btn-admin-del-account').onclick = () => {
   if (!u) return;
   if (!confirm(`PERMANENTLY delete account "${u}"? This removes their account, friends, DMs, owned lobbies, and all leaderboard entries.`)) return;
   adminAction('/api/admin/delete-account', { username: u });
+};
+document.getElementById('btn-admin-reset-pw').onclick = async () => {
+  const u = document.getElementById('admin-rpw-user').value.trim();
+  const np = document.getElementById('admin-rpw-new').value;
+  const status = document.getElementById('admin-rpw-status');
+  if (!u || !np) { status.style.color = 'var(--red)'; status.textContent = 'Username and new password required'; return; }
+  if (np.length < 4) { status.style.color = 'var(--red)'; status.textContent = 'Password must be at least 4 characters'; return; }
+  if (!confirm(`Reset password for "${u}"? They will be logged out everywhere and must use the new password to log in.`)) return;
+  status.style.color = 'var(--text-muted)'; status.textContent = 'Resetting...';
+  if (isFakeAdmin) { status.style.color = 'var(--accent)'; status.textContent = `(fake) reset ${u}`; return; }
+  try {
+    const r = await fetch(BACKEND + '/api/admin/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: authToken }, body: JSON.stringify({ username: u, new_password: np }) });
+    const d = await r.json();
+    if (d.error) { status.style.color = 'var(--red)'; status.textContent = d.error; return; }
+    status.style.color = 'var(--accent)';
+    status.textContent = `Reset ${d.username} (revoked ${d.sessions_revoked} session${d.sessions_revoked === 1 ? '' : 's'})`;
+    document.getElementById('admin-rpw-new').value = '';
+  } catch { status.style.color = 'var(--red)'; status.textContent = 'Request failed'; }
 };
 document.getElementById('btn-admin-switch-user').onclick = async () => {
   const u = document.getElementById('admin-switch-input').value.trim();
@@ -7349,8 +8495,27 @@ document.addEventListener('click', (e) => {
     }, 400);
   }, TIP_ROTATE_MS);
 })();
+let ezpInitialEtag = null;
+async function ezpVersionCheck() {
+  try {
+    const url = BACKEND + '/api/version?_=' + Date.now();
+    const r = await fetch(url, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+    if (!r.ok) return;
+    const d = await r.json();
+    const et = d && d.etag;
+    if (!et) return;
+    if (ezpInitialEtag === null) { ezpInitialEtag = et; return; }
+    if (et !== ezpInitialEtag) {
+      try { if (window.caches && caches.keys) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); } } catch {}
+      location.reload();
+    }
+  } catch {}
+}
+setInterval(ezpVersionCheck, 45000);
+
 (async () => {
   await selectBackend(); // pick primary or proxy before any API/WS traffic
+  ezpVersionCheck();
   // Server-side ban probe. Catches users banned while offline (no WS push received).
   try {
     const r = await fetch(BACKEND + '/api/auth/status', { headers: authToken ? { Authorization: authToken } : {} });
